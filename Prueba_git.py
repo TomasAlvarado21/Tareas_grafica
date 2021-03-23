@@ -1,4 +1,5 @@
+x=2
 def hola(x):
-    print("hola mundo") + x
+    print (x + x)
 
-hola("bla")
+hola(4)
