@@ -285,8 +285,16 @@ def create_island(x0, y0, width, height):
     # Defining the location and colors of each vertex  of the shape
     vertices = [
     #   positions                           colors
-         0.4, 0.0, 0.0, 1.0, 1.0, 1.0
-         
+         0.6, 0.0 + y0, 0.0, 0.63, 0.25, 0.0,
+         0.6, -1.0, 0.0, 0.63, 0.25, 0.0,
+         -0.6, 0.0 + y0, 0.0, 0.63, 0.25, 0.0,
+
+         -0.6, 0.0 + y0, 0.0, 0.63, 0.25, 0.0,
+         -0.6, -1.0, 0.0, 0.63, 0.25, 0.0,
+         0.6, -1.0, 0.0, 0.63, 0.25, 0.0]
+
+    indices = [0, 1, 2,
+                3, 4, 5]
 
     return Shape(vertices, indices)
 
