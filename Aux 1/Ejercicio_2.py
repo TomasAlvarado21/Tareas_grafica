@@ -413,11 +413,15 @@ def create_river(x0, y0, width, height):
     # Defining the location and colors of each vertex  of the shape
     vertices = [
     #   positions        colors
-         ]
+         0.2, 0.1, 0.0, 0.0, 0.0, 0.6,
+         0.13, -0.1, 0.0, 0.0, 0.0, 0.8,
+         -0.1, 0.1, 0.0, 0.0, 0.0, 0.6,
+         -0.05, -0.1, 0.0, 0.0, 0.0, 0.8]
 
     # Defining connections among vertices
     # We have a triangle every 3 indices specified
-    indices = []
+    indices = [0, 1, 2,
+                1, 2, 3]
 
     return Shape(vertices, indices)
 
@@ -475,6 +479,13 @@ if __name__ == "__main__":
     greenPipeline.setupVAO(gpu_arbol)
     sunsetPipeline.setupVAO(gpu_arbol)
     gpu_arbol.fillBuffers(arbol_shape.vertices, arbol_shape.indices, GL_STATIC_DRAW)
+    
+    river_shape = create_river(x0=-0.35, y0=0.1, width=0.8, height=0.5)
+    gpu_river = GPUShape().initBuffers()
+    simplePipeline.setupVAO(gpu_river)
+    greenPipeline.setupVAO(gpu_river)
+    sunsetPipeline.setupVAO(gpu_river)
+    gpu_river.fillBuffers(river_shape.vertices, river_shape.indices, GL_STATIC_DRAW)
 
 
     # Setting up the clear screen color
@@ -499,18 +510,21 @@ if __name__ == "__main__":
             greenPipeline.drawCall(gpu_island)
             greensPipeline.drawCall(gpu_volcano)
             greensPipeline.drawCall(gpu_arbol)
+            greensPipeline.drawCall(gpu_river)
         elif (controller.effect2):
             glUseProgram(sunsetPipeline.shaderProgram)
             sunsetPipeline.drawCall(gpu_sky)
             sunsetPipeline.drawCall(gpu_island)
             sunsetPipeline.drawCall(gpu_volcano)
             sunsetPipeline.drawCall(gpu_arbol)
+            sunsetPipeline.drawCall(gpu_river)
         else:
             glUseProgram(simplePipeline.shaderProgram)
             simplePipeline.drawCall(gpu_sky)
             simplePipeline.drawCall(gpu_island)
             simplePipeline.drawCall(gpu_volcano)
             simplePipeline.drawCall(gpu_arbol)
+            simplePipeline.drawCall(gpu_river)
 
         # Once the render is done, buffers are swapped, showing only the complete scene.
         glfw.swap_buffers(window)
@@ -520,5 +534,6 @@ if __name__ == "__main__":
     gpu_island.clear()
     gpu_volcano.clear()
     gpu_arbol.clear()
+    gpu_river.clear()
 
     glfw.terminate()
