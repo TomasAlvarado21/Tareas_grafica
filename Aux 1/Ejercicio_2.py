@@ -124,7 +124,8 @@ class GreenShaderProgram:
             out vec3 newColor;
             void main()
             {
-                gl_Position = vec4(position, 1.0f);
+                vec3 newpos = vec3(position[0]-0.3, position[1]+0.2, position[2]);
+                gl_Position = vec4(newpos, 1.0f);
                 newColor = color;
             }
             """
@@ -136,13 +137,7 @@ class GreenShaderProgram:
             out vec4 outColor;
             void main()
             {
-                float grayColor = (newColor.r + newColor.g + newColor.b) / 3.0;
-                vec3 finalColor = newColor;
-                if (newColor.g < newColor.r +0.1|| newColor.g < newColor.b +0.1)
-                {
-                    finalColor = vec3(grayColor, grayColor, grayColor);
-                }
-                outColor = vec4(finalColor, 1.0f);
+                outColor = vec4(newColor, 1.0f);
             }
             """
 
@@ -181,7 +176,7 @@ class GreenShaderProgram:
         # Unbind the current VAO
         glBindVertexArray(0)
 
-class SunsetShaderProgram:
+class NightShaderProgram:
 
     def __init__(self):
 
@@ -194,7 +189,7 @@ class SunsetShaderProgram:
             out vec3 newColor;
             void main()
             {
-                gl_Position = vec4(position, 1.0f);
+                 gl_Position = vec4(position, 1.0f);
                 newColor = color;
             }
             """
@@ -206,7 +201,7 @@ class SunsetShaderProgram:
             out vec4 outColor;
             void main()
             {   
-                vec3 finalColor = vec3((newColor.r + 0.4) , newColor.g + 0.2, newColor.b * 0.1 );
+                vec3 finalColor = vec3((newColor.r * 0.2) , newColor.g * 0.3, newColor.b * 0.3 );
                 outColor = vec4(finalColor, 1.0f);
             }
             """
@@ -293,7 +288,20 @@ def create_volcano(x0, y0, width, height):
 
          x0 + width*0.2, y0, 0.0,  0.3, 0.15, 0.1,
          x0 + width, y0, 0.0,  0.3, 0.15, 0.1,
-         x0 + width*0.6, y0 + height, 0.0, 0.6, 0.31, 0.17,
+         x0 + width*0.6, y0 + height, 0.0, 0.6, 0.31, 0.17]
+
+    # Defining connections among vertices
+    # We have a triangle every 3 indices specified
+    indices = [0, 1, 2,
+                3, 4, 5]
+
+    return Shape(vertices, indices)
+def create_lava(x0, y0, width, height):
+
+    # Defining the location and colors of each vertex  of the shape
+    vertices = [
+    #   positions        colors
+         
          #lava
          x0 + 0.337, y0 + height - 0.03, 0.0, 0.3, 0.0, 0.0,
          x0 + width*0.5, y0 + height - 0.13, 0.0, 0.8, 0.0, 0.0,
@@ -301,11 +309,48 @@ def create_volcano(x0, y0, width, height):
 
     # Defining connections among vertices
     # We have a triangle every 3 indices specified
-    indices = [0, 1, 2,
-                3, 4, 5,
-                6, 7, 8]
+    indices = [0, 1, 2]
 
     return Shape(vertices, indices)
+
+def create_sol(x0, y0, width, height):
+
+    # Defining the location and colors of each vertex  of the shape
+    vertices = [
+    #   positions        colors
+            
+            #sol
+            0.5, 0.5, 0.0, 0.8, 1.0, 0.2,
+            0.7, 0.5, 0.0, 0.8, 1.0, 0.2,
+            0.5, 0.7, 0.0, 0.8, 1.0, 0.2,
+            0.7, 0.7, 0.0, 0.8, 1.0, 0.2]
+
+    # Defining connections among vertices
+    # We have a triangle every 3 indices specified
+    indices = [0, 1, 2,
+                1, 2, 3]
+
+    return Shape(vertices, indices)
+
+def create_luna(x0, y0, width, height):
+
+    # Defining the location and colors of each vertex  of the shape
+    vertices = [
+    #   positions        colors
+            
+            #luna
+            0.5, 0.5, 0.0, 1.0, 1.0, 1.0,
+            0.7, 0.5, 0.0, 1.0, 1.0, 1.0,
+            0.5, 0.7, 0.0, 1.0, 1.0, 1.0,
+            0.7, 0.7, 0.0, 1.0, 1.0, 1.0]
+
+    # Defining connections among vertices
+    # We have a triangle every 3 indices specified
+    indices = [0, 1, 2,
+                1, 2, 3]
+
+    return Shape(vertices, indices)
+
 def create_arbol(x0, y0, width, height):
 
     # Defining the location and colors of each vertex  of the shape
@@ -413,15 +458,21 @@ def create_river(x0, y0, width, height):
     # Defining the location and colors of each vertex  of the shape
     vertices = [
     #   positions        colors
+        #Lago
          0.2, 0.1, 0.0, 0.0, 0.0, 0.6,
          0.13, -0.1, 0.0, 0.0, 0.0, 0.8,
          -0.1, 0.1, 0.0, 0.0, 0.0, 0.6,
-         -0.05, -0.1, 0.0, 0.0, 0.0, 0.8]
+         -0.05, -0.1, 0.0, 0.0, 0.0, 0.8,
+         #Rio
+        0.1, -0.1, 0.0, 0.0, 0.0, 0.8,
+        0.0, -0.1, 0.0, 0.0, 0.0, 0.8,
+        0.0, -0.5, 0.0, 0.0, 0.0, 1.0]
 
     # Defining connections among vertices
     # We have a triangle every 3 indices specified
     indices = [0, 1, 2,
-                1, 2, 3]
+                1, 2, 3,
+                4, 5, 6]
 
     return Shape(vertices, indices)
 
@@ -448,14 +499,14 @@ if __name__ == "__main__":
     # Creating our shader program and telling OpenGL to use it
     simplePipeline = SimpleShaderProgram()
     greenPipeline = GreenShaderProgram()
-    sunsetPipeline = SunsetShaderProgram()
+    nightPipeline = NightShaderProgram()
 
     # Creating shapes on GPU memory
     sky_shape = create_sky(y0=0.2, y1=1.0)
     gpu_sky = GPUShape().initBuffers()
     simplePipeline.setupVAO(gpu_sky)
     greenPipeline.setupVAO(gpu_sky)
-    sunsetPipeline.setupVAO(gpu_sky)
+    nightPipeline.setupVAO(gpu_sky)
     gpu_sky.fillBuffers(sky_shape.vertices, sky_shape.indices, GL_STATIC_DRAW)
 
 
@@ -463,30 +514,50 @@ if __name__ == "__main__":
     gpu_island = GPUShape().initBuffers()
     simplePipeline.setupVAO(gpu_island)
     greenPipeline.setupVAO(gpu_island)
-    sunsetPipeline.setupVAO(gpu_island)
+    nightPipeline.setupVAO(gpu_island)
     gpu_island.fillBuffers(island_shape.vertices, island_shape.indices, GL_STATIC_DRAW)
 
     volcano_shape = create_volcano(x0=-0.35, y0=0.1, width=0.8, height=0.5)
     gpu_volcano = GPUShape().initBuffers()
     simplePipeline.setupVAO(gpu_volcano)
     greenPipeline.setupVAO(gpu_volcano)
-    sunsetPipeline.setupVAO(gpu_volcano)
+    nightPipeline.setupVAO(gpu_volcano)
     gpu_volcano.fillBuffers(volcano_shape.vertices, volcano_shape.indices, GL_STATIC_DRAW)
 
     arbol_shape = create_arbol(x0=-0.35, y0=0.1, width=0.8, height=0.5)
     gpu_arbol = GPUShape().initBuffers()
     simplePipeline.setupVAO(gpu_arbol)
     greenPipeline.setupVAO(gpu_arbol)
-    sunsetPipeline.setupVAO(gpu_arbol)
+    nightPipeline.setupVAO(gpu_arbol)
     gpu_arbol.fillBuffers(arbol_shape.vertices, arbol_shape.indices, GL_STATIC_DRAW)
     
     river_shape = create_river(x0=-0.35, y0=0.1, width=0.8, height=0.5)
     gpu_river = GPUShape().initBuffers()
     simplePipeline.setupVAO(gpu_river)
     greenPipeline.setupVAO(gpu_river)
-    sunsetPipeline.setupVAO(gpu_river)
+    nightPipeline.setupVAO(gpu_river)
     gpu_river.fillBuffers(river_shape.vertices, river_shape.indices, GL_STATIC_DRAW)
 
+    lava_shape = create_lava(x0=-0.35, y0=0.1, width=0.8, height=0.5)
+    gpu_lava = GPUShape().initBuffers()
+    simplePipeline.setupVAO(gpu_lava)
+    greenPipeline.setupVAO(gpu_lava)
+    nightPipeline.setupVAO(gpu_lava)
+    gpu_lava.fillBuffers(lava_shape.vertices, lava_shape.indices, GL_STATIC_DRAW)
+
+    sol_shape = create_sol(x0=-0.35, y0=0.1, width=0.8, height=0.5)
+    gpu_sol = GPUShape().initBuffers()
+    simplePipeline.setupVAO(gpu_sol)
+    greenPipeline.setupVAO(gpu_sol)
+    nightPipeline.setupVAO(gpu_sol)
+    gpu_sol.fillBuffers(sol_shape.vertices, sol_shape.indices, GL_STATIC_DRAW)
+
+    luna_shape = create_luna(x0=-0.35, y0=0.1, width=0.8, height=0.5)
+    gpu_luna = GPUShape().initBuffers()
+    simplePipeline.setupVAO(gpu_luna)
+    greenPipeline.setupVAO(gpu_luna)
+    nightPipeline.setupVAO(gpu_luna)
+    gpu_luna.fillBuffers(luna_shape.vertices, luna_shape.indices, GL_STATIC_DRAW)
 
     # Setting up the clear screen color
     glClearColor(0.2, 0.2, 0.2, 1.0)
@@ -505,19 +576,25 @@ if __name__ == "__main__":
         glClear(GL_COLOR_BUFFER_BIT)
 
         if (controller.effect1):
+            glUseProgram(simplePipeline.shaderProgram)
+            simplePipeline.drawCall(gpu_sky)
+            simplePipeline.drawCall(gpu_island)
+            simplePipeline.drawCall(gpu_volcano)
+            simplePipeline.drawCall(gpu_arbol)
+            simplePipeline.drawCall(gpu_river)
+            simplePipeline.drawCall(gpu_lava)
             glUseProgram(greenPipeline.shaderProgram)
-            greenPipeline.drawCall(gpu_sky)
-            greenPipeline.drawCall(gpu_island)
-            greensPipeline.drawCall(gpu_volcano)
-            greensPipeline.drawCall(gpu_arbol)
-            greensPipeline.drawCall(gpu_river)
+            greenPipeline.drawCall(gpu_sol)
         elif (controller.effect2):
-            glUseProgram(sunsetPipeline.shaderProgram)
-            sunsetPipeline.drawCall(gpu_sky)
-            sunsetPipeline.drawCall(gpu_island)
-            sunsetPipeline.drawCall(gpu_volcano)
-            sunsetPipeline.drawCall(gpu_arbol)
-            sunsetPipeline.drawCall(gpu_river)
+            glUseProgram(nightPipeline.shaderProgram)
+            nightPipeline.drawCall(gpu_sky)
+            nightPipeline.drawCall(gpu_island)
+            nightPipeline.drawCall(gpu_volcano)
+            nightPipeline.drawCall(gpu_arbol)
+            nightPipeline.drawCall(gpu_river)
+            glUseProgram(simplePipeline.shaderProgram)
+            simplePipeline.drawCall(gpu_lava)
+            simplePipeline.drawCall(gpu_luna)
         else:
             glUseProgram(simplePipeline.shaderProgram)
             simplePipeline.drawCall(gpu_sky)
@@ -525,6 +602,8 @@ if __name__ == "__main__":
             simplePipeline.drawCall(gpu_volcano)
             simplePipeline.drawCall(gpu_arbol)
             simplePipeline.drawCall(gpu_river)
+            simplePipeline.drawCall(gpu_lava)
+            simplePipeline.drawCall(gpu_sol)
 
         # Once the render is done, buffers are swapped, showing only the complete scene.
         glfw.swap_buffers(window)
@@ -535,5 +614,8 @@ if __name__ == "__main__":
     gpu_volcano.clear()
     gpu_arbol.clear()
     gpu_river.clear()
+    gpu_lava.clear()
+    gpu_sol.clear()
+    gpu_luna.clear()
 
     glfw.terminate()
