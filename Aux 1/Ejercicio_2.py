@@ -136,8 +136,9 @@ class GreenShaderProgram:
 
             out vec4 outColor;
             void main()
-            {
-                outColor = vec4(newColor, 1.0f);
+            {   
+                vec3 finalColor = vec3((newColor.r + 0.2) , newColor.g - 0.1, newColor.b - 0.1);
+                outColor = vec4(finalColor, 1.0f);
             }
             """
 
