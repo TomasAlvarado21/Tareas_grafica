@@ -158,7 +158,7 @@ def createRainbowCircle(N):
             0.5 * math.cos(theta), 0.5 * math.sin(theta), 0,
 
             # color generates varying between 0 and 1
-                  math.sin(theta),       math.cos(theta), 0]
+                  0.5,       0.6, 0]
 
         # A triangle is created using the center, this and the next vertex
         indices += [0, i, i+1]
