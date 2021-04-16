@@ -86,6 +86,31 @@ def createTrayectoria(N):
 
     return Shape(vertices, indices)
 
+def createBorder(N):
+    dtheta = 2 * math.pi / N
+    # First vertex at the center, white color
+    vertices = [0.5 * math.cos(dtheta), 0.5 * math.sin(dtheta), 0,0.9,       0.9, 0.9]
+    indices = []
+
+    
+
+    for i in range(N):
+        theta = i * dtheta
+
+        vertices += [
+            # vertex coordinates
+            0.5 * math.cos(theta), 0.5 * math.sin(theta), 0,
+
+            # color generates varying between 0 and 1
+                  1.0,       0, 0]
+
+        # A triangle is created using the center, this and the next vertex
+        indices += [i,i+1]
+    indices += [1, N-1]
+    
+
+    return Shape(vertices, indices)
+
 def createLuna(N):
 
     # First vertex at the center, white color
@@ -202,6 +227,11 @@ if __name__ == "__main__":
     pipeline.setupVAO(gpuTrayectoria)
     gpuTrayectoria.fillBuffers(shapeTrayectoria.vertices, shapeTrayectoria.indices, GL_STATIC_DRAW)
 
+    shapeBorder = createBorder(100)
+    gpuBorder = es.GPUShape().initBuffers()
+    pipeline.setupVAO(gpuBorder)
+    gpuBorder.fillBuffers(shapeBorder.vertices, shapeBorder.indices, GL_STATIC_DRAW)
+
     shapeCircle = bs.createRainbowCircle(100)
     gpuCircle = es.GPUShape().initBuffers()
     pipeline.setupVAO(gpuCircle)
@@ -217,7 +247,7 @@ if __name__ == "__main__":
     pipeline.setupVAO(gpuTierra)
     gpuTierra.fillBuffers(shapeTierra.vertices, shapeTierra.indices, GL_STATIC_DRAW)
 
-    shapeLuna = createLuna(100)
+    shapeLuna = createLuna(20)
     gpuLuna = es.GPUShape().initBuffers()
     pipeline.setupVAO(gpuLuna)
     gpuLuna.fillBuffers(shapeLuna.vertices, shapeLuna.indices, GL_STATIC_DRAW)
@@ -238,16 +268,52 @@ if __name__ == "__main__":
         glClear(GL_COLOR_BUFFER_BIT)
 
         # Using the time as the theta parameter
+        
         theta = glfw.get_time()
         
+        #Borde/silueta sol
+        BorderSolTransform = tr.matmul([
+            tr.uniformScale(0.505)
+        ])
+
+        #updating the transform attribute
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, BorderSolTransform)
+
+        pipeline2.drawCall(gpuBorder)
+        
+        #Borde/silueta Tierra
+        BorderTierraTransform = tr.matmul([
+            tr.translate(np.cos(theta*0.8)*0.6, np.sin(theta*0.8)*0.6, 0),
+            tr.rotationZ(0),
+            tr.uniformScale(0.252)
+        ])
+
+        #updating the transform attribute
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, BorderTierraTransform)
+
+        pipeline2.drawCall(gpuBorder)
+        
+        
         trTierraTransform = tr.matmul([
-            tr.uniformScale(0.6)
+            tr.uniformScale(1.2)
         ])
 
         # updating the transform attribute
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, trTierraTransform)
 
         pipeline2.drawCall(gpuTrayectoria)
+
+        trLunaTransform = tr.matmul([
+            tr.translate(np.cos(theta*0.8)*0.6, np.sin(theta*0.8)*0.6, 0),
+            tr.rotationZ(0),
+            tr.uniformScale(0.5)
+        ])
+
+        # updating the transform attribute
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, trLunaTransform)
+
+        pipeline2.drawCall(gpuTrayectoria)
+
         # Luna
         LunaTransform = tr.matmul([
             tr.translate(np.cos(theta*0.8)*0.6 + np.cos(2*theta)*0.2, np.sin(theta*0.8)*0.6 + np.sin(2*theta)*0.2, 0),
@@ -264,15 +330,15 @@ if __name__ == "__main__":
         # Another instance of the Tierra
         TierraTransform2 = tr.matmul([
             tr.translate(np.cos(theta*0.8)*0.6, np.sin(theta*0.8)*0.6, 0),
-            tr.rotationZ(0),
-            tr.uniformScale(0.3)])
+            tr.rotationZ(theta),
+            tr.uniformScale(0.25)])
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, TierraTransform2)
         pipeline.drawCall(gpuTierra)
 
         # Sol
         SolTransform = tr.matmul([
             
-            tr.rotationZ(2 * theta),
+            tr.rotationZ(-theta/10),
             tr.uniformScale(0.5)
         ])
 

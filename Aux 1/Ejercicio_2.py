@@ -242,32 +242,6 @@ class NightShaderProgram:
         # Unbind the current VAO
         glBindVertexArray(0)
 
-def create_circle(N):
-
-    # First vertex at the center, white color
-    vertices = [0, 0, 0, 1.0, 1.0, 1.0]
-    indices = []
-
-    dtheta = 2 * math.pi / N
-
-    for i in range(N):
-        theta = i * dtheta
-
-        vertices += [
-            # vertex coordinates
-            0.5 * math.cos(theta), 0.5 * math.sin(theta), 0,
-
-            # color generates varying between 0 and 1
-                  math.sin(theta),       math.cos(theta), 0]
-
-        # A triangle is created using the center, this and the next vertex
-        indices += [0, i, i+1]
-
-    # The final triangle connects back to the second vertex
-    indices += [0, N, 1]
-
-    return Shape(vertices, indices)
-
 def create_sky(y0, y1):
 
     # Defining the location and colors of each vertex  of the shape
@@ -585,14 +559,6 @@ if __name__ == "__main__":
     greenPipeline.setupVAO(gpu_luna)
     nightPipeline.setupVAO(gpu_luna)
     gpu_luna.fillBuffers(luna_shape.vertices, luna_shape.indices, GL_STATIC_DRAW)
-    
-    circulo_shape = create_circle(x0=-0.35, y0=0.1, width=0.8, height=0.5)
-    gpu_circulo = GPUShape().initBuffers()
-    simplePipeline.setupVAO(gpu_circulo)
-    greenPipeline.setupVAO(gpu_circulo)
-    nightPipeline.setupVAO(gpu_circulo)
-    gpu_circulo.fillBuffers(circulo_shape.vertices, circulo_shape.indices, GL_STATIC_DRAW)
-
 
     # Setting up the clear screen color
     glClearColor(0.2, 0.2, 0.2, 1.0)
@@ -618,7 +584,6 @@ if __name__ == "__main__":
             simplePipeline.drawCall(gpu_arbol)
             simplePipeline.drawCall(gpu_river)
             simplePipeline.drawCall(gpu_lava)
-            simplePipeline.drawCall(gpu_circulo)
             glUseProgram(greenPipeline.shaderProgram)
             greenPipeline.drawCall(gpu_sol)
         elif (controller.effect2):
