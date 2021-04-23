@@ -16,7 +16,9 @@ from PIL import Image
 __author__ = "Daniel Calderon"
 __license__ = "MIT"
 
+def loop(x):
 
+    return 1-(x%10)*0.1
 # A class to store the application control
 class Controller:
     def __init__(self):
@@ -106,9 +108,13 @@ if __name__ == "__main__":
     thisFolderPath = os.path.dirname(thisFilePath)
     spritesDirectory = os.path.join(thisFolderPath, "Sprites")
     spritePath = os.path.join(spritesDirectory, "sprites.png")
+    lluviaPath = os.path.join(spritesDirectory, "lluvia.png")
 
     texture = es.textureSimpleSetup(
             spritePath, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST)
+
+    lluviatexture = es.textureSimpleSetup(
+            lluviaPath, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST)
 
     # Creamos una gpushape por cada frame de textura
     for i in range(10):
@@ -122,6 +128,16 @@ if __name__ == "__main__":
         gpuKnight.fillBuffers(shapeKnight.vertices, shapeKnight.indices, GL_STATIC_DRAW)
 
         gpus.append(gpuKnight)
+    
+    gpuLluvia = GPUShape().initBuffers()
+    pipeline.setupVAO(gpuLluvia)
+
+    shapeLluvia = bs.createTextureQuad(0,1,0,1)
+
+    gpuLluvia.texture = lluviatexture
+
+    gpuLluvia.fillBuffers(shapeLluvia.vertices, shapeLluvia.indices, GL_STATIC_DRAW)
+
 
 #######################################################################################################    
 
@@ -138,17 +154,91 @@ if __name__ == "__main__":
         glClear(GL_COLOR_BUFFER_BIT)
 
         # Drawing the shapes
-
+        theta = glfw.get_time()
 ##############################################################################################################################
-
-        # Le entregamos al vertex shader la matriz de transformación
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
-            tr.translate(controller.x, 0, 0),
+            tr.translate(0, 0, 0),
             tr.uniformScale(0.5)
         ]))
 
         # Dibujamos la figura
         pipeline.drawCall(gpus[controller.actual_sprite])
+
+        
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
+            tr.translate(0-controller.x, 2*loop(theta)-0.5, 0),
+            tr.uniformScale(2)
+        ]))
+
+        # Dibujamos la figura
+        pipeline.drawCall(gpuLluvia)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
+            tr.translate(0-controller.x, 2*loop(theta)-2.339, 0),
+            tr.uniformScale(2)
+        ]))
+
+        # Dibujamos la figura
+        pipeline.drawCall(gpuLluvia)
+        
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
+            tr.translate(0-controller.x, 2*loop(theta)+1.339, 0),
+            tr.uniformScale(2)
+        ]))
+
+        # Dibujamos la figura
+        pipeline.drawCall(gpuLluvia)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
+            tr.translate(1-controller.x, 2*loop(theta)-0.5, 0),
+            tr.uniformScale(2)
+        ]))
+
+        # Dibujamos la figura
+        pipeline.drawCall(gpuLluvia)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
+            tr.translate(1-controller.x, 2*loop(theta)-2.339, 0),
+            tr.uniformScale(2)
+        ]))
+
+        # Dibujamos la figura
+        pipeline.drawCall(gpuLluvia)
+        
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
+            tr.translate(1-controller.x, 2*loop(theta)+1.339, 0),
+            tr.uniformScale(2)
+        ]))
+
+        # Dibujamos la figura
+        pipeline.drawCall(gpuLluvia)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
+            tr.translate(-1-controller.x, 2*loop(theta)-0.5, 0),
+            tr.uniformScale(2)
+        ]))
+
+        # Dibujamos la figura
+        pipeline.drawCall(gpuLluvia)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
+            tr.translate(-1-controller.x, 2*loop(theta)-2.339, 0),
+            tr.uniformScale(2)
+        ]))
+
+        # Dibujamos la figura
+        pipeline.drawCall(gpuLluvia)
+        
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
+            tr.translate(-1-controller.x, 2*loop(theta)+1.339, 0),
+            tr.uniformScale(2)
+        ]))
+
+        # Dibujamos la figura
+        pipeline.drawCall(gpuLluvia)
+
+        # Le entregamos al vertex shader la matriz de transformación
+        
+        
         
 ##############################################################################################################################
 
@@ -157,5 +247,6 @@ if __name__ == "__main__":
 
     # freeing GPU memory
     gpuKnight.clear()
+    gpuLluvia.clear()
 
     glfw.terminate()

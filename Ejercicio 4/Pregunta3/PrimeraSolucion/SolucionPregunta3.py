@@ -13,9 +13,14 @@ import grafica.basic_shapes as bs
 import grafica.easy_shaders as es
 from PIL import Image
 
+
+
 __author__ = "Daniel Calderon"
 __license__ = "MIT"
-
+def nfall(x):
+    
+    t=x//10
+    return 1-(x-t*10)*0.1
 ###########################################################################
 # Creamos nuestro vertex shader
 class SimpleNewTextureTransformShaderProgram:
@@ -70,6 +75,62 @@ class SimpleNewTextureTransformShaderProgram:
         self.shaderProgram = OpenGL.GL.shaders.compileProgram(
             OpenGL.GL.shaders.compileShader(vertex_shader, GL_VERTEX_SHADER),
             OpenGL.GL.shaders.compileShader(fragment_shader, GL_FRAGMENT_SHADER))
+
+class LluviaShaderProgram:
+
+    def __init__(self):
+
+        vertex_shader = """
+            #version 130
+
+            uniform mat4 transform;
+            uniform float texture_index;
+
+            in vec2 position;
+
+            out vec2 outTexCoords;
+
+            void main()
+            {
+                gl_Position = transform * vec4(position, 0, 1.0f);
+
+                if(position.x>0 && position.y>0){
+                    outTexCoords = vec2(1, 0); 
+                }
+                else if(position.x<0 && position.y>0){
+                    outTexCoords = vec2(0, 1);
+                }
+                else if(position.x>0 && position.y<0){
+                    outTexCoords = vec2((1, 1);
+                }
+                else{
+                    outTexCoords = vec2(0, 0);
+                }
+            }
+            """
+
+        fragment_shader = """
+            #version 130
+
+            in vec2 outTexCoords;
+
+            out vec4 outColor;
+
+            uniform sampler2D samplerTex;
+
+            void main()
+            {
+                outColor = texture(samplerTex, outTexCoords);
+            }
+            """
+
+        # Compiling our shader program
+        self.shaderProgram = OpenGL.GL.shaders.compileProgram(
+            OpenGL.GL.shaders.compileShader(vertex_shader, GL_VERTEX_SHADER),
+            OpenGL.GL.shaders.compileShader(fragment_shader, GL_FRAGMENT_SHADER))
+
+
+
 
 
     def setupVAO(self, gpuShape):
@@ -186,12 +247,12 @@ if __name__ == "__main__":
 
     # A simple shader program with position and texture coordinates as inputs.
     pipeline = SimpleNewTextureTransformShaderProgram()
-
+    pipeline2 = LluviaShaderProgram()
 #####################################################################################################
     
     # Telling OpenGL to use our shader program
     glUseProgram(pipeline.shaderProgram)
-
+    glUseProgram(pipeline2.shaderProgram)
     # Setting up the clear screen color
     glClearColor(0.25, 0.25, 0.25, 1.0)
 
@@ -209,11 +270,32 @@ if __name__ == "__main__":
     gpuKnight = GPUShape().initBuffers()
     pipeline.setupVAO(gpuKnight)
 
+    shapeLluvia = createTextureQuad()
+
+    gpuLluvia = GPUShape().initBuffers()
+    pipeline2.setupVAO(gpuLluvia)
+
     # Definimos donde se encuentra la textura
     thisFilePath = os.path.abspath(__file__)
     thisFolderPath = os.path.dirname(thisFilePath)
     spritesDirectory = os.path.join(thisFolderPath, "Sprites")
+    lluviaPath = os.path.join(spritesDirectory, "lluvia.png")
     spritePath = os.path.join(spritesDirectory, "sprites.png")
+    
+
+    #gpuLluvia.texture = es.textureSimpleSetup(
+    #    spritePath, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST)
+
+    #gpuLluvia.fillBuffers(shapeLluvia.vertices, shapeLluvia.indices, GL_STATIC_DRAW)
+
+    shapeLluvia = bs.createTextureQuad(10,1)
+    gpuLluvia = GPUShape().initBuffers()
+    pipeline2.setupVAO(gpuLluvia)
+    gpuLluvia.fillBuffers(shapeLluvia.vertices, shapeLluvia.indices, GL_STATIC_DRAW)
+    gpuLluvia.texture = es.textureSimpleSetup(
+        lluviaPath, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST)
+    gpuLluvia.fillBuffers(shapeLluvia.vertices, shapeLluvia.indices, GL_STATIC_DRAW)
+    
 
     gpuKnight.texture = es.textureSimpleSetup(
         spritePath, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST)
@@ -237,6 +319,18 @@ if __name__ == "__main__":
         # Drawing the shapes
 
 ##############################################################################################################
+        theta = glfw.get_time()
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
+            tr.translate(0, 2*nfall(theta)-2, 0),
+            tr.uniformScale(0.5)
+        ]))        
+        
+        pipeline2.drawCall(gpuLluvia)
+
+
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "texture_index"), controller.actual_sprite)
+
 
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
             tr.translate(controller.x, 0, 0),
@@ -254,5 +348,6 @@ if __name__ == "__main__":
 
     # freeing GPU memory
     gpuKnight.clear()
+    gpuLluvia.clear()
 
     glfw.terminate()
