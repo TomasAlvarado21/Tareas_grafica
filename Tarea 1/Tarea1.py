@@ -37,10 +37,20 @@ def on_key(window, key, scancode, action, mods):
 
     else:
         print('Unknown key')
+#clase arbol
+class Nodoe:
+    def __init__(self, info=""):
+        self.info=info
 
-class arbol:
+class Nodoi:
+    def __init__(self, izq, info, der):
+        self.izq=izq
+        self.info=info
+        self.der=der
 
-    __i
+class Arbol:
+    def __init__(self,raiz=Nodoe()):
+        self.raiz=raiz        
 
 
 
