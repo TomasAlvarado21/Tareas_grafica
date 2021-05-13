@@ -97,10 +97,10 @@ class Controller:
     #Funcion que recibe el input para manejar la camara
     def update_camera(self, delta):
         if self.is_left_pressed:
-            self.polar_camera.set_theta(-2 * delta)
+            self.polar_camera.set_theta( 2 * delta)
 
         if self.is_right_pressed:
-            self.polar_camera.set_theta( 2 * delta)
+            self.polar_camera.set_theta( -2 * delta)
 
         if self.is_up_pressed:
             self.polar_camera.set_rho(-5 * delta)

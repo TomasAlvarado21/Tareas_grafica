@@ -189,9 +189,9 @@ if __name__ == "__main__":
 
     scene = createScene(phongPipeline)
     cube1 = createCube1(phongPipeline)
-    cube2 = createCube2(phongPipeline)
+    #cube2 = createToroideNode(0.3, 0.3, 0.3, phongPipeline)
     sphere = createToroideNode(0.3, 0.3, 0.3, phongPipeline)
-    tex_sphere = createTexSphereNode(phongTexPipeline)
+    tex_sphere = createTexToroideNode(phongTexPipeline)
 
     perfMonitor = pm.PerformanceMonitor(glfw.get_time(), 0.5)
     # glfw will swap buffers as soon as possible

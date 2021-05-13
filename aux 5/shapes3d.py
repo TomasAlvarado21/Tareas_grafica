@@ -299,3 +299,20 @@ def createToroideNode(r, g, b, pipeline):
     scaledToroide.childs = [ToroideNode]
 
     return scaledToroide
+
+def createTexToroideNode(pipeline):
+    toroide = createTextureGPUShape(createToroide(20), pipeline, "sprites/stone.png")
+
+    toroideNode = sg.SceneGraphNode("toroide")
+    toroideNode.transform =tr.matmul([
+        tr.translate(-0.25,0.25,-0.35),
+        tr.scale(0.3,0.3,0.3)
+    ])
+    toroideNode.childs = [toroide]
+
+    scaledToroide = sg.SceneGraphNode("sc_Toroide")
+    scaledToroide.transform = tr.scale(5, 5, 5)
+    scaledToroide.childs = [ToroideNode]
+
+
+    return scaledToroide
