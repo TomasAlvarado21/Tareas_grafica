@@ -283,6 +283,39 @@ def createToroide(N, r, g, b):
             c += 4
 
     return bs.Shape(vertices, indices)
+def createTexToroide(N):
+    vertices = []
+    indices = []
+    dTheta = 2 * np.pi /N
+    dPhi = 2 * np.pi /N
+    R = 0.5
+    rho = 0.2
+    c = 0
+
+    for i in range(N - 1):
+        theta = i * dTheta
+        theta1 = (i + 1) * dTheta
+        for j in range(N):
+            phi = j*dPhi
+            phi1 = (j+1)*dPhi
+            v0 = [(R+rho*np.cos(phi))*np.cos(theta), (R+rho*np.cos(phi))*np.sin(theta), rho*np.sin(phi)]
+            v1 = [(R+rho*np.cos(phi1))*np.cos(theta), (R+rho*np.cos(phi1))*np.sin(theta), rho*np.sin(phi1)]
+            v2 = [(R+rho*np.cos(phi))*np.cos(theta1), (R+rho*np.cos(phi))*np.sin(theta1), rho*np.sin(phi)]
+            v3 = [(R+rho*np.cos(phi1))*np.cos(theta1), (R+rho*np.cos(phi1))*np.sin(theta1), rho*np.sin(phi1)]
+            n0 = [np.cos(theta)*np.cos(phi), np.sin(theta)*np.cos(phi), np.sin(theta)]
+            n1 = [np.cos(theta)*np.cos(phi1), np.sin(theta)*np.cos(phi1), np.sin(theta)]
+            n2 = [np.cos(theta1)*np.cos(phi), np.sin(theta1)*np.cos(phi), np.sin(theta1)]
+            n3 = [np.cos(theta1)*np.cos(phi1), np.sin(theta1)*np.cos(phi1), np.sin(theta1)]
+
+            vertices += [v0[0], v0[1], v0[2], 0, 1, n0[0], n0[1], n0[2]]
+            vertices += [v1[0], v1[1], v1[2], 0, 0, n1[0], n1[1], n1[2]]
+            vertices += [v2[0], v2[1], v2[2], 1, 1, n2[0], n2[1], n2[2]]
+            vertices += [v3[0], v3[1], v3[2], 1, 0, n3[0], n3[1], n3[2]]
+            indices += [ c + 0, c + 1, c +2 ]
+            indices += [ c + 1, c + 2, c + 3 ]
+            c += 4
+
+    return bs.Shape(vertices, indices)
 
 def createToroideNode(r, g, b, pipeline):
     Toroide = createGPUShape(pipeline, createToroide(20, r,g,b))
@@ -301,7 +334,7 @@ def createToroideNode(r, g, b, pipeline):
     return scaledToroide
 
 def createTexToroideNode(pipeline):
-    toroide = createTextureGPUShape(createToroide(20), pipeline, "sprites/stone.png")
+    toroide = createTextureGPUShape(createTexToroide(20), pipeline, "sprites/stone.png")
 
     toroideNode = sg.SceneGraphNode("toroide")
     toroideNode.transform =tr.matmul([
@@ -312,7 +345,7 @@ def createTexToroideNode(pipeline):
 
     scaledToroide = sg.SceneGraphNode("sc_Toroide")
     scaledToroide.transform = tr.scale(5, 5, 5)
-    scaledToroide.childs = [ToroideNode]
+    scaledToroide.childs = [toroideNode]
 
 
     return scaledToroide
