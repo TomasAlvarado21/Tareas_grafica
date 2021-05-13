@@ -37,16 +37,35 @@ def on_key(window, key, scancode, action, mods):
 
     else:
         print('Unknown key')
+
+
+
+def mouse_look_clb(window, xpos, ypos):
+    global lastX, lastY
+
+    if first_mouse:
+        lastX = xpos
+        lastY = ypos
+
+    xoffset = xpos - lastX
+    yoffset = lastY - ypos
+
+    lastX = xpos
+    lastY = ypos
+
+
+
 #clase arbol
 class Nodoe:
     def __init__(self, info=""):
         self.info=info
 
 class Nodoi:
-    def __init__(self, izq, info, der):
+    def __init__(self, izq, info, der, pos):
         self.izq=izq
         self.info=info
         self.der=der
+        self.pos=pos
 
 class Arbol:
     def __init__(self,raiz=Nodoe()):
@@ -57,7 +76,7 @@ class Arbol:
 def createBorder(N):
     dtheta = 2 * math.pi / N
     # First vertex at the center, white color
-    vertices = [0.5 * math.cos(dtheta), 0.5 * math.sin(dtheta), 0,0.9,       0.9, 0.9]
+    vertices = [0.5 * math.cos(dtheta), 0.5 * math.sin(dtheta), 0, 0.9,       0.9, 0.9]
     indices = []
 
     
@@ -94,6 +113,8 @@ if __name__ == "__main__":
         glfw.terminate()
         glfw.set_window_should_close(window, True)
 
+
+    
     glfw.make_context_current(window)
 
     # Connecting the callback function 'on_key' to handle keyboard events
