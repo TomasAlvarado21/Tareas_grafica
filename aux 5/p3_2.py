@@ -198,19 +198,19 @@ if __name__ == "__main__":
             mvpPipeline.drawCall(gpuAxis, GL_LINES)
 
         lightingPipeline = phongPipeline
-        #lightposition = [1*np.cos(t1), 1*np.sin(t1), 2.3]
-        lightposition = [0, 0, 2.3]
+        lightposition = [1*np.cos(t1), 1*np.sin(t1), 2.3]
+        #lightposition = [0, 0, 2.3]
 
-        #r = np.abs(((0.5*t1+0.00) % 2)-1)
-        #g = np.abs(((0.5*t1+0.33) % 2)-1)
-        #b = np.abs(((0.5*t1+0.66) % 2)-1)
+        r = np.abs(((0.5*t1+0.00) % 2)-1)
+        g = np.abs(((0.5*t1+0.33) % 2)-1)
+        b = np.abs(((0.5*t1+0.66) % 2)-1)
 
         # Setting all uniform shader variables
         
         glUseProgram(lightingPipeline.shaderProgram)
         # White light in all components: ambient, diffuse and specular.
         glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "La"), 0.25, 0.25, 0.25)
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ld"), 0.5, 0.5, 0.5)
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ld"), 1.0, 1.0, 1.0)
         glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ls"), 1.0, 1.0, 1.0)
 
         # Object is barely visible at only ambient. Diffuse behavior is slightly red. Sparkles are white

@@ -198,12 +198,12 @@ if __name__ == "__main__":
             mvpPipeline.drawCall(gpuAxis, GL_LINES)
 
         lightingPipeline = phongPipeline
-        #lightposition = [1*np.cos(t1), 1*np.sin(t1), 2.3]
-        lightposition = [0, 0, 2.3]
+        lightposition = [1*np.cos(t1), 1*np.sin(t1), 2.3]
+        #lightposition = [0, 0, 2.3]
 
-        #r = np.abs(((0.5*t1+0.00) % 2)-1)
-        #g = np.abs(((0.5*t1+0.33) % 2)-1)
-        #b = np.abs(((0.5*t1+0.66) % 2)-1)
+        r = np.abs(((0.5*t1+0.00) % 2)-1)
+        g = np.abs(((0.5*t1+0.33) % 2)-1)
+        b = np.abs(((0.5*t1+0.66) % 2)-1)
 
         # Setting all uniform shader variables
         

@@ -349,3 +349,18 @@ def createTexToroideNode(pipeline):
 
 
     return scaledToroide
+def createToroideNode2(r, g, b, pipeline):
+    Toroide2 = createGPUShape(pipeline, createToroide(20, r,g,b))
+
+    ToroideNode2 = sg.SceneGraphNode("Toroide2")
+    ToroideNode2.transform =tr.matmul([
+        tr.translate(-0.25,-0.15,-0.35),
+        tr.scale(0.3,0.3,0.3)
+    ])
+    ToroideNode2.childs = [Toroide2]
+
+    scaledToroide = sg.SceneGraphNode("sc_Toroide2")
+    scaledToroide.transform = tr.scale(5, 5, 5)
+    scaledToroide.childs = [ToroideNode2]
+
+    return scaledToroide

@@ -188,7 +188,7 @@ if __name__ == "__main__":
 
     scene = createScene(phongPipeline)
     cube1 = createCube1(phongPipeline)
-    cube2 = createToroideNode(0.3, 0.3, 0.3, phongPipeline)
+    cube2 = createToroideNode2(0.3, 0.3, 0.3, phongPipeline)
     sphere = createToroideNode(0.3, 0.3, 0.3, phongPipeline)
     tex_sphere   = createTexToroideNode(phongTexPipeline)
 
@@ -262,17 +262,17 @@ if __name__ == "__main__":
         lightingPipeline = phongPipeline
         #lightposition = [1*np.cos(t1), 1*np.sin(t1), 2.3]
 
-        #r = np.abs(((0.5*t1+0.00) % 2)-1)
-        #g = np.abs(((0.5*t1+0.33) % 2)-1)
-        #b = np.abs(((0.5*t1+0.66) % 2)-1)
+        r = np.abs(((0.5*t1+0.00) % 2)-1)
+        g = np.abs(((0.5*t1+0.33) % 2)-1)
+        b = np.abs(((0.5*t1+0.66) % 2)-1)
 
         # Setting all uniform shader variables
         
         glUseProgram(lightingPipeline.shaderProgram)
         # White light in all components: ambient, diffuse and specular.
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "La"), 0.25, 0.25, 0.25)
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ld"), 0.5, 0.5, 0.5)
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ls"), 1.0, 1.0, 1.0)
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "La"), r, g, b)
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ld"), r, g, b)
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ls"), r, g, b)
 
         # Object is barely visible at only ambient. Diffuse behavior is slightly red. Sparkles are white
         glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ka"), 0.2, 0.2, 0.2)
@@ -281,7 +281,7 @@ if __name__ == "__main__":
 
         glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "lightPosition"), lightPos[0], lightPos[1], lightPos[2])
         glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "viewPosition"), camera.eye[0], camera.eye[1], camera.eye[2])
-        glUniform1ui(glGetUniformLocation(lightingPipeline.shaderProgram, "shininess"), 100)
+        glUniform1ui(glGetUniformLocation(lightingPipeline.shaderProgram, "shininess"), 38)
         
         glUniform1f(glGetUniformLocation(lightingPipeline.shaderProgram, "constantAttenuation"), 0.001)
         glUniform1f(glGetUniformLocation(lightingPipeline.shaderProgram, "linearAttenuation"), 0.03)
@@ -298,14 +298,17 @@ if __name__ == "__main__":
         glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Kd"), kdS[0], kdS[1], kdS[2])
         glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ks"), ksS[0], ksS[1], ksS[2])
 
+        
+        sg.drawSceneGraphNode(sphere, lightingPipeline, "model")
+        
+        glUniform1ui(glGetUniformLocation(lightingPipeline.shaderProgram, "shininess"), 83)
+
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ka"), kaO[0], kaO[1], kaO[2])
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Kd"), kdO[0], kdO[1], kdO[2])
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ks"), ksO[0], ksO[1], ksO[2])
+        
         sg.drawSceneGraphNode(cube1, lightingPipeline, "model")
         sg.drawSceneGraphNode(cube2, lightingPipeline, "model")
-        sg.drawSceneGraphNode(sphere, lightingPipeline, "model")
-        glUniform1ui(glGetUniformLocation(lightingPipeline.shaderProgram, "shininess"), 51)
-
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ka"), kaC[0], kaC[1], kaC[2])
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Kd"), kdC[0], kdC[1], kdC[2])
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ks"), ksC[0], ksC[1], ksC[2])
         glUseProgram(phongTexPipeline.shaderProgram)
         # White light in all components: ambient, diffuse and specular.
         glUniform3f(glGetUniformLocation(phongTexPipeline.shaderProgram, "La"), 0.25, 0.25, 0.25)
