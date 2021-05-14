@@ -235,7 +235,7 @@ def createSphereNode(r, g, b, pipeline):
     return scaledSphere
 
 def createTexSphereNode(pipeline):
-    sphere = createTextureGPUShape(createTextureNormalSphere(20), pipeline, "sprites/stone.png")
+    sphere = createTextureGPUShape(createTextureNormalSphere(20), pipeline, "sprites/madera.jpg")
 
     sphereNode = sg.SceneGraphNode("sphere")
     sphereNode.transform =tr.matmul([
@@ -259,7 +259,7 @@ def createToroide(N, r, g, b):
     rho = 0.2
     c = 0
 
-    for i in range(N - 1):
+    for i in range(N):
         theta = i * dTheta
         theta1 = (i + 1) * dTheta
         for j in range(N):
@@ -292,7 +292,7 @@ def createTexToroide(N):
     rho = 0.2
     c = 0
 
-    for i in range(N - 1):
+    for i in range(N):
         theta = i * dTheta
         theta1 = (i + 1) * dTheta
         for j in range(N):
@@ -334,7 +334,7 @@ def createToroideNode(r, g, b, pipeline):
     return scaledToroide
 
 def createTexToroideNode(pipeline):
-    toroide = createTextureGPUShape(createTexToroide(20), pipeline, "sprites/stone.png")
+    toroide = createTextureGPUShape(createTexToroide(20), pipeline, "sprites/madera.jpg")
 
     toroideNode = sg.SceneGraphNode("toroide")
     toroideNode.transform =tr.matmul([

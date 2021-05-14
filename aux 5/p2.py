@@ -188,9 +188,9 @@ if __name__ == "__main__":
 
     scene = createScene(phongPipeline)
     cube1 = createCube1(phongPipeline)
-    cube2 = createCube2(phongPipeline)
-    sphere = createSphereNode(0.3, 0.3, 0.3, phongPipeline)
-    tex_sphere = createTexSphereNode(phongTexPipeline)
+    cube2 = createToroideNode(0.3, 0.3, 0.3, phongPipeline)
+    sphere = createToroideNode(0.3, 0.3, 0.3, phongPipeline)
+    tex_sphere   = createTexToroideNode(phongTexPipeline)
 
     perfMonitor = pm.PerformanceMonitor(glfw.get_time(), 0.5)
     # glfw will swap buffers as soon as possible
@@ -204,11 +204,19 @@ if __name__ == "__main__":
     controller = Controller()
     # Connecting the callback function 'on_key' to handle keyboard events
     glfw.set_key_callback(window, controller.on_key)
-
+    #standar
     lightPos = [0, 0, 2.3]
     ka = [0.2, 0.2, 0.2] 
     kd = [0.5, 0.5, 0.5]
     ks = [1.0, 1.0, 1.0] 
+    #oro pulido
+    kaO = [0.24725, 0.1995, 0.0645] 
+    kdO = [0.34615, 0.3143, 0.0903]
+    ksO = [0.797357, 0.723991, 0.208006]
+    #obsidiana
+    kaS = [0.05375, 0.05, 0.06625] 
+    kdS = [0.18275, 0.17, 0.22525]
+    ksS = [0.332741, 0.328634, 0.346435]
 
     # Application loop
     while not glfw.window_should_close(window):
@@ -286,14 +294,18 @@ if __name__ == "__main__":
         # Drawing
         sg.drawSceneGraphNode(scene, lightingPipeline, "model")
 
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ka"), ka[0], ka[1], ka[2])
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Kd"), kd[0], kd[1], kd[2])
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ks"), ks[0], ks[1], ks[2])
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ka"), kaS[0], kaS[1], kaS[2])
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Kd"), kdS[0], kdS[1], kdS[2])
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ks"), ksS[0], ksS[1], ksS[2])
 
         sg.drawSceneGraphNode(cube1, lightingPipeline, "model")
         sg.drawSceneGraphNode(cube2, lightingPipeline, "model")
         sg.drawSceneGraphNode(sphere, lightingPipeline, "model")
-        
+        glUniform1ui(glGetUniformLocation(lightingPipeline.shaderProgram, "shininess"), 51)
+
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ka"), kaC[0], kaC[1], kaC[2])
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Kd"), kdC[0], kdC[1], kdC[2])
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ks"), ksC[0], ksC[1], ksC[2])
         glUseProgram(phongTexPipeline.shaderProgram)
         # White light in all components: ambient, diffuse and specular.
         glUniform3f(glGetUniformLocation(phongTexPipeline.shaderProgram, "La"), 0.25, 0.25, 0.25)

@@ -159,9 +159,9 @@ if __name__ == "__main__":
     # glfw will swap buffers as soon as possible
     glfw.swap_interval(0)
     t0 = glfw.get_time()
-    r = 0.5
+    r = 0.3
     g = 0
-    b = 0.25
+    b = 0.1
 
     # Application loop
     while not glfw.window_should_close(window):
@@ -238,7 +238,7 @@ if __name__ == "__main__":
         
         glUseProgram(phongTexPipeline.shaderProgram)
         # White light in all components: ambient, diffuse and specular.
-        glUniform3f(glGetUniformLocation(phongTexPipeline.shaderProgram, "La"), 0.7, 0.7, 0.7)
+        glUniform3f(glGetUniformLocation(phongTexPipeline.shaderProgram, "La"), 0.9, 0.9, 0.9)
         glUniform3f(glGetUniformLocation(phongTexPipeline.shaderProgram, "Ld"), 0.7, 0.7, 0.7)
         glUniform3f(glGetUniformLocation(phongTexPipeline.shaderProgram, "Ls"), 1.0, 1.0, 1.0)
 
