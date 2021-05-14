@@ -261,10 +261,21 @@ if __name__ == "__main__":
 
         lightingPipeline = phongPipeline
         #lightposition = [1*np.cos(t1), 1*np.sin(t1), 2.3]
-
-        r = np.abs(((0.5*t1+0.00) % 2)-1)
-        g = np.abs(((0.5*t1+0.33) % 2)-1)
-        b = np.abs(((0.5*t1+0.66) % 2)-1)
+        if int(t1%3) == 0:
+            r = 1
+            g = 1
+            b = 1
+        if int(t1%3) == 1:
+            r = 0.5
+            g = 0.5
+            b = 0.5
+        if int(t1%3) == 2:
+            r = 0.1
+            g = 0.1
+            b = 0.1
+        #r = np.abs(((0.5*t1+0.00) % 2)-1)
+        #g = np.abs(((0.5*t1+0.33) % 2)-1)
+        #b = np.abs(((0.5*t1+0.66) % 2)-1)
 
         # Setting all uniform shader variables
         
