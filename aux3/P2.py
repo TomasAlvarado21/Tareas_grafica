@@ -1,27 +1,32 @@
-import math
+""" P2 [Grafo de Escena] """
+
 import glfw
-from OpenGL.GL import *
 import OpenGL.GL.shaders
 import numpy as np
-import sys
-import os.path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import grafica.basic_shapes as bs
 import grafica.easy_shaders as es
 import grafica.transformations as tr
-import text_renderer as tx
+import grafica.performance_monitor as pm
+import grafica.scene_graph as sg
+from shapes import *
+from model import *
 
+
+# We will use 32 bits data, so an integer has 4 bytes
+# 1 byte = 8 bits
 SIZE_IN_BYTES = 4
 
 
+# A class to store the application control
 class Controller:
-    fillPolygon = True
+    def __init__(self):
+        self.fillPolygon = True
 
 
 # we will use the global controller as communication with the callback function
 controller = Controller()
 
-
+# This function will be executed whenever a key is pressed or released
 def on_key(window, key, scancode, action, mods):
 
     if action != glfw.PRESS:
@@ -40,39 +45,6 @@ def on_key(window, key, scancode, action, mods):
 
 
 
-def mouse_look_clb(window, xpos, ypos):
-    global lastX, lastY
-
-    if first_mouse:
-        lastX = xpos
-        lastY = ypos
-
-    xoffset = xpos - lastX
-    yoffset = lastY - ypos
-
-    lastX = xpos
-    lastY = ypos
-
-
-
-#clase arbol
-class Nodoe:
-    def __init__(self, info=""):
-        self.info=info
-
-class Nodoi:
-    def __init__(self, izq, info, der, pos):
-        self.izq=izq
-        self.info=info
-        self.der=der
-        self.pos=pos
-
-class Arbol:
-    def __init__(self,raiz=Nodoe()):
-        self.raiz=raiz        
-
-
-
 if __name__ == "__main__":
 
     # Initialize glfw
@@ -82,7 +54,7 @@ if __name__ == "__main__":
     # Creating a glfw window
     width = 800
     height = 800
-    title = "P1 - Auto modelado con curvas "
+    title = "P2 - Grafo de escena"
     window = glfw.create_window(width, height, title, None, None)
 
     if not window:
@@ -99,20 +71,11 @@ if __name__ == "__main__":
     glUseProgram(pipeline.shaderProgram)
 
     # Setting up the clear screen color
-    glClearColor(0.75, 0.75, 0.75, 1.0)
-    
-    texto = "4"
-    textoCharSize = 0.1
-    textoShape = tx.textToShape(texto,textoCharSize,textoCharSize)
-    gputexto = es.GPUShape().initBuffers()
-    textPipeline.setupVAO(gputexto)
-    gputexto.fillBuffers(textoShape.vertices, textoShape.indices, GL_STATIC_DRAW)
-    gputexto.texture = gpuText3DTexture
-    textoTransform = tr.matmul([
-        tr.translate(0.9, 0.5, 0)
-    ])
-    # Nodo con el auto, funcion se encuentra en shapes.py
-    
+    glClearColor(0.15, 0.15, 0.15, 1.0)
+
+    # Se crea la escena con funcion ubicada en shapes.py
+    mainScene = createScene(pipeline)
+
     perfMonitor = pm.PerformanceMonitor(glfw.get_time(), 0.5)
     # glfw will swap buffers as soon as possible
     glfw.swap_interval(0)
@@ -120,7 +83,7 @@ if __name__ == "__main__":
 
     # Application loop
     while not glfw.window_should_close(window):
-        # Variables de tiempo
+        # Variables de tiempo 
         t1 = glfw.get_time()
         delta = t1 -t0
         t0 = t1
@@ -137,24 +100,16 @@ if __name__ == "__main__":
         else:
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
-
-        glUseProgram(textPipeline.shaderProgram)
-        glUniform4f(glGetUniformLocation(textPipeline.shaderProgram, "fontColor"), 1,1,1,0)
-        glUniform4f(glGetUniformLocation(textPipeline.shaderProgram, "backColor"), 0,0,0,1)
-        glUniformMatrix4fv(glGetUniformLocation(textPipeline.shaderProgram, "transform"), 1, GL_TRUE, textoTransform)
-        textPipeline.drawCall(gputexto)
-
-
         # Clearing the screen
         glClear(GL_COLOR_BUFFER_BIT)
 
-        # Dibujamos el nodo del auto
-        
+        # Se dibuja el grafo de escena
+        sg.drawSceneGraphNode(mainScene, pipeline, "transform")
 
         # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
         glfw.swap_buffers(window)
 
     # freeing GPU memory
-    gputexto.clear()
+    mainScene.clear()
     
     glfw.terminate()
