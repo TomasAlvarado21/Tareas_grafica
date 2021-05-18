@@ -7,6 +7,24 @@ import grafica.transformations as tr
 #import grafica.ex_curves as cv
 #import grafica.scene_graph as sg
 import text_renderer as tx
+import glfw
+
+
+class Shape:
+    def __init__(self, vertices, indices, textureFileName=None):
+        self.vertices = vertices
+        self.indices = indices
+        self.textureFileName = textureFileName
+
+def drawCall2(self, gpuShape, mode=GL_LINES):
+        assert isinstance(gpuShape, GPUShape)
+
+        # Binding the VAO and executing the draw call
+        glBindVertexArray(gpuShape.vao)
+        glDrawElements(mode, gpuShape.size, GL_UNSIGNED_INT, None)
+        
+        # Unbind the current VAO
+        glBindVertexArray(0)
 
 def createGPUShape(shape, pipeline):
     # Funcion Conveniente para facilitar la inicializacion de un GPUShape
@@ -29,7 +47,7 @@ def createBorder(N):
     # First vertex at the center, white color
     vertices = [0.5 * math.cos(dtheta), 0.5 * math.sin(dtheta), 0, 0.9,       0.9, 0.9]
     indices = []
-
+    theta = glfw.get_time()
     
 
     for i in range(N):
@@ -58,13 +76,14 @@ def createBorder(N):
 
 #glUseProgram(pipeline.shaderProgram)
 
-#   pipeline2 = es.LINEAS()
 
 
 
 def createNodos(X,x,y,pipeline):
     numero_Str = str(X)
     
+    #pipeline2 = es.LINEAS()
+    #glUseProgram(pipeline.shaderProgram)
     textPipeline = tx.TextureTextRendererShaderProgram()
     textBitsTexture = tx.generateTextBitsTexture()
     gpuText3DTexture = tx.toOpenGLTexture(textBitsTexture)
@@ -86,19 +105,22 @@ def createNodos(X,x,y,pipeline):
 
 
 
-    shapeBorder = createBorder(10)
+    shapeBorder = createBorder(100)
     gpuBorder = es.GPUShape().initBuffers()
     pipeline.setupVAO(gpuBorder)
     gpuBorder.fillBuffers(shapeBorder.vertices, shapeBorder.indices, GL_STATIC_DRAW)
 
-    borderTransform = tr.matmul([
-        tr.translate(x, y, 0),
-        tr.scale(1)
-    ])
-    glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, borderTransform)
+    #borderTransform = tr.matmul([
+        #tr.translate(0.1, 0.1, 0),
+    #    tr.uniformScale(1-0)
+    #])
+    
+    #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, borderTransform)
+    
+    #pipeline2.drawCall(gpuBorder)
 
-    pipeline2.drawCall(gpuBorder)
 
+    
     return
 
 

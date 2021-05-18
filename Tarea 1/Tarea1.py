@@ -12,10 +12,12 @@ import grafica.transformations as tr
 import text_renderer as tx
 import grafica.performance_monitor as pm
 import shapes as sh
+import glfw
 
 
 SIZE_IN_BYTES = 4
-#f = open("input.csv", "r")
+t = input("file")
+f = open("input.csv", "r")
 
 
 #T = input(T)
@@ -44,7 +46,16 @@ def on_key(window, key, scancode, action, mods):
     else:
         print('Unknown key')
 
-
+def lector(f):
+        l = []
+        for i in f:
+            i = i.split(",")
+            for q in i:
+                w = int(q)
+                l.append(w)
+            print(l)
+        for i in lector(f):
+            sh.createNodos(i,0,0,pipeline)
 
 def mouse_look_clb(window, xpos, ypos):
     global lastX, lastY
@@ -102,7 +113,7 @@ if __name__ == "__main__":
     glfw.set_key_callback(window, on_key)
 
     # Creating our shader program and telling OpenGL to use it
-    pipeline2 = es.LINEAS()
+    #pipeline2 = es.LINEAS()
     pipeline = es.SimpleTransformShaderProgram()
     textPipeline = tx.TextureTextRendererShaderProgram()
     # Creating texture with all characters
@@ -117,7 +128,7 @@ if __name__ == "__main__":
     #texto = "4"
     #textoCharSize = 0.1
     #textoShape = tx.textToShape(texto,textoCharSize,textoCharSize)
-    #gputexto = es.GPUShape().initBuffers()
+    gputexto = es.GPUShape().initBuffers()
     #textPipeline.setupVAO(gputexto)
     #gputexto.fillBuffers(textoShape.vertices, textoShape.indices, GL_STATIC_DRAW)
     #gputexto.texture = gpuText3DTexture
@@ -165,11 +176,16 @@ if __name__ == "__main__":
         #glUniform4f(glGetUniformLocation(textPipeline.shaderProgram, "backColor"), 1,1,1,0)
         #glUniformMatrix4fv(glGetUniformLocation(textPipeline.shaderProgram, "transform"), 1, GL_TRUE, textoTransform)
         #textPipeline.drawCall(gputexto)
-        r = sh.createNodos(4,0,0,pipeline)
+        
+        #for i in lector(f):
+        #    sh.createNodos(i,0,0,pipeline)
+
+
         # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
         glfw.swap_buffers(window)
 
     # freeing GPU memory
     gputexto.clear()
+    
     
     glfw.terminate()
