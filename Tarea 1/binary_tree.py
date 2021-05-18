@@ -17,7 +17,7 @@ import glfw
 
 SIZE_IN_BYTES = 4
 t = input("file")
-f = open("input.csv", "r")
+f = open(t, "r")
 
 
 #T = input(T)
@@ -54,8 +54,12 @@ def lector(f):
                 w = int(q)
                 l.append(w)
             print(l)
-        for i in lector(f):
-            sh.createNodos(i,0,0,pipeline)
+        return l
+
+def numeros():
+    lector(f)
+    for i in lector(f):
+        sh.createNodos(i,0,0,pipeline)
 
 def mouse_look_clb(window, xpos, ypos):
     global lastX, lastY
@@ -176,9 +180,7 @@ if __name__ == "__main__":
         #glUniform4f(glGetUniformLocation(textPipeline.shaderProgram, "backColor"), 1,1,1,0)
         #glUniformMatrix4fv(glGetUniformLocation(textPipeline.shaderProgram, "transform"), 1, GL_TRUE, textoTransform)
         #textPipeline.drawCall(gputexto)
-        
-        #for i in lector(f):
-        #    sh.createNodos(i,0,0,pipeline)
+        numeros()
 
 
         # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
