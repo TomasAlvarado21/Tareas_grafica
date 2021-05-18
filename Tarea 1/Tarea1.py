@@ -10,9 +10,15 @@ import grafica.basic_shapes as bs
 import grafica.easy_shaders as es
 import grafica.transformations as tr
 import text_renderer as tx
+import grafica.performance_monitor as pm
+import shapes as sh
+
 
 SIZE_IN_BYTES = 4
+#f = open("input.csv", "r")
 
+
+#T = input(T)
 
 class Controller:
     fillPolygon = True
@@ -82,37 +88,46 @@ if __name__ == "__main__":
     # Creating a glfw window
     width = 800
     height = 800
-    title = "P1 - Auto modelado con curvas "
+    title = "Tarea AB"
     window = glfw.create_window(width, height, title, None, None)
 
     if not window:
         glfw.terminate()
         glfw.set_window_should_close(window, True)
 
+    
     glfw.make_context_current(window)
 
     # Connecting the callback function 'on_key' to handle keyboard events
     glfw.set_key_callback(window, on_key)
 
     # Creating our shader program and telling OpenGL to use it
+    pipeline2 = es.LINEAS()
     pipeline = es.SimpleTransformShaderProgram()
+    textPipeline = tx.TextureTextRendererShaderProgram()
+    # Creating texture with all characters
+    textBitsTexture = tx.generateTextBitsTexture()
+    # Moving texture to GPU memory
+    gpuText3DTexture = tx.toOpenGLTexture(textBitsTexture)
     glUseProgram(pipeline.shaderProgram)
 
     # Setting up the clear screen color
     glClearColor(0.75, 0.75, 0.75, 1.0)
     
-    texto = "4"
-    textoCharSize = 0.1
-    textoShape = tx.textToShape(texto,textoCharSize,textoCharSize)
-    gputexto = es.GPUShape().initBuffers()
-    textPipeline.setupVAO(gputexto)
-    gputexto.fillBuffers(textoShape.vertices, textoShape.indices, GL_STATIC_DRAW)
-    gputexto.texture = gpuText3DTexture
-    textoTransform = tr.matmul([
-        tr.translate(0.9, 0.5, 0)
-    ])
-    # Nodo con el auto, funcion se encuentra en shapes.py
+    #texto = "4"
+    #textoCharSize = 0.1
+    #textoShape = tx.textToShape(texto,textoCharSize,textoCharSize)
+    #gputexto = es.GPUShape().initBuffers()
+    #textPipeline.setupVAO(gputexto)
+    #gputexto.fillBuffers(textoShape.vertices, textoShape.indices, GL_STATIC_DRAW)
+    #gputexto.texture = gpuText3DTexture
+    #textoTransform = tr.matmul([
+    #    tr.translate(0.9, 0.5, 0)
+    #])
     
+
+
+    color = [1.0,1.0,1.0]
     perfMonitor = pm.PerformanceMonitor(glfw.get_time(), 0.5)
     # glfw will swap buffers as soon as possible
     glfw.swap_interval(0)
@@ -138,19 +153,19 @@ if __name__ == "__main__":
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
 
-        glUseProgram(textPipeline.shaderProgram)
-        glUniform4f(glGetUniformLocation(textPipeline.shaderProgram, "fontColor"), 1,1,1,0)
-        glUniform4f(glGetUniformLocation(textPipeline.shaderProgram, "backColor"), 0,0,0,1)
-        glUniformMatrix4fv(glGetUniformLocation(textPipeline.shaderProgram, "transform"), 1, GL_TRUE, textoTransform)
-        textPipeline.drawCall(gputexto)
+        
 
 
         # Clearing the screen
         glClear(GL_COLOR_BUFFER_BIT)
 
         # Dibujamos el nodo del auto
-        
-
+        #glUseProgram(textPipeline.shaderProgram)
+        #glUniform4f(glGetUniformLocation(textPipeline.shaderProgram, "fontColor"), 0,0,0,1)
+        #glUniform4f(glGetUniformLocation(textPipeline.shaderProgram, "backColor"), 1,1,1,0)
+        #glUniformMatrix4fv(glGetUniformLocation(textPipeline.shaderProgram, "transform"), 1, GL_TRUE, textoTransform)
+        #textPipeline.drawCall(gputexto)
+        r = sh.createNodos(4,0,0,pipeline)
         # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
         glfw.swap_buffers(window)
 

@@ -4,8 +4,9 @@ from OpenGL.GL import *
 import grafica.basic_shapes as bs
 import grafica.easy_shaders as es
 import grafica.transformations as tr
-import grafica.ex_curves as cv
-import grafica.scene_graph as sg
+#import grafica.ex_curves as cv
+#import grafica.scene_graph as sg
+import text_renderer as tx
 
 def createGPUShape(shape, pipeline):
     # Funcion Conveniente para facilitar la inicializacion de un GPUShape
@@ -22,6 +23,84 @@ def createTextureGPUShape(shape, pipeline, path):
     gpuShape.texture = es.textureSimpleSetup(
         path, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST)
     return gpuShape
+
+def createBorder(N):
+    dtheta = 2 * math.pi / N
+    # First vertex at the center, white color
+    vertices = [0.5 * math.cos(dtheta), 0.5 * math.sin(dtheta), 0, 0.9,       0.9, 0.9]
+    indices = []
+
+    
+
+    for i in range(N):
+        theta = i * dtheta
+
+        vertices += [
+            # vertex coordinates
+            0.5 * math.cos(theta), 0.5 * math.sin(theta), 0,
+
+            # color generates varying between 0 and 1
+                  1.0,       0, 0]
+
+        # A triangle is created using the center, this and the next vertex
+        indices += [i,i+1]
+    indices += [1, N-1]
+    
+
+    return Shape(vertices, indices)
+
+#pipeline = es.SimpleTransformShaderProgram()
+#textPipeline = tx.TextureTextRendererShaderProgram()
+# Creating texture with all characters
+#textBitsTexture = tx.generateTextBitsTexture()
+# Moving texture to GPU memory
+#gpuText3DTexture = tx.toOpenGLTexture(textBitsTexture)
+
+#glUseProgram(pipeline.shaderProgram)
+
+#   pipeline2 = es.LINEAS()
+
+
+
+def createNodos(X,x,y,pipeline):
+    numero_Str = str(X)
+    
+    textPipeline = tx.TextureTextRendererShaderProgram()
+    textBitsTexture = tx.generateTextBitsTexture()
+    gpuText3DTexture = tx.toOpenGLTexture(textBitsTexture)
+
+    textoCharSize = 0.1
+    textoShape = tx.textToShape(numero_Str,textoCharSize,textoCharSize)
+    gputexto = es.GPUShape().initBuffers()
+    textPipeline.setupVAO(gputexto)
+    gputexto.fillBuffers(textoShape.vertices, textoShape.indices, GL_STATIC_DRAW)
+    gputexto.texture = gpuText3DTexture
+    textoTransform = tr.matmul([
+        tr.translate(x, y, 0)
+    ])
+    glUseProgram(textPipeline.shaderProgram)
+    glUniform4f(glGetUniformLocation(textPipeline.shaderProgram, "fontColor"), 0,0,0,1)
+    glUniform4f(glGetUniformLocation(textPipeline.shaderProgram, "backColor"), 1,1,1,0)
+    glUniformMatrix4fv(glGetUniformLocation(textPipeline.shaderProgram, "transform"), 1, GL_TRUE, textoTransform)
+    textPipeline.drawCall(gputexto)
+
+
+
+    shapeBorder = createBorder(10)
+    gpuBorder = es.GPUShape().initBuffers()
+    pipeline.setupVAO(gpuBorder)
+    gpuBorder.fillBuffers(shapeBorder.vertices, shapeBorder.indices, GL_STATIC_DRAW)
+
+    borderTransform = tr.matmul([
+        tr.translate(x, y, 0),
+        tr.scale(1)
+    ])
+    glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, borderTransform)
+
+    pipeline2.drawCall(gpuBorder)
+
+    return
+
 
 def createCar(pipeline):
     # Se crea la escena del auto de la pregunta 1
