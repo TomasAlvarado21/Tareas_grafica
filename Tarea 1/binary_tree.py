@@ -12,14 +12,22 @@ import grafica.transformations as tr
 import text_renderer as tx
 import grafica.performance_monitor as pm
 import shapes as sh
-import glfw
+
 
 
 SIZE_IN_BYTES = 4
-t = input("file")
-f = open(t, "r")
+#t = input("file")
+f = open("input.csv", "r")
 
 
+for i in f:
+    i = i.split(",")
+    l = []
+    for q in i:
+        w = int(q)
+        l.append(w)
+    
+    
 #T = input(T)
 
 class Controller:
@@ -180,7 +188,8 @@ if __name__ == "__main__":
         #glUniform4f(glGetUniformLocation(textPipeline.shaderProgram, "backColor"), 1,1,1,0)
         #glUniformMatrix4fv(glGetUniformLocation(textPipeline.shaderProgram, "transform"), 1, GL_TRUE, textoTransform)
         #textPipeline.drawCall(gputexto)
-        numeros()
+        for i in l:
+            sh.createNodos(i,0,0,pipeline)
 
 
         # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
