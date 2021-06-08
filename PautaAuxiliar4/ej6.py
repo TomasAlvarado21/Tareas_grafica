@@ -13,11 +13,120 @@ import grafica.basic_shapes as bs
 import grafica.easy_shaders as es
 import grafica.scene_graph as sg
 from grafica.assets_path import getAssetPath
+import grafica.ex_curves as cv
 
-__author__ = "Daniel Calderon"
-__license__ = "MIT"
+class Movimientodelbarco():
+    def __init__(self, size):
+        self.pos = [0, 0]
+        self.vel = 1
+        self.model = None # Referencia al grafo de escena asociado
+        self.controller = None # Referencia del controlador, para acceder a sus variables
+        self.size = size # Escala a aplicar al nodo 
+        self.radio = 0.1 # distancia para realiozar los calculos de colision
+        self.curva = []
+        self.delta = 0
+        #self.pos_x = []
+
+    def set_curva(self, new_curva):
+        self.curva = new_curva
+        self.pos = [new_curva[0][0], new_curva[0][1]]
+        self.delta = 2/(len(self.curva))
+        #self.pos_x = range(len(self.curva)-1)
+
+    def set_model(self, new_model):
+        # Se obtiene una referencia a uno nodo
+        self.model = new_model
+
+    def set_controller(self, new_controller):
+        # Se obtiene la referncia al controller
+        self.controller = new_controller
+
+    def update(self):
+        if self.vel > len(self.curva)-1:
+            self.vel = 1 
+
+        if self.controller.is_h_pressed == True:
+            self.pos = [-1 + self.delta*self.vel, self.curva[self.vel][1] - 0.05]
+            self.vel += 1
+        
+        
+        if self.controller.is_h_pressed == False:
+            self.pos = [-1 + self.delta*self.vel, self.curva[self.vel][1] - 0.05]
+        
+        self.model.transform = tr.matmul([tr.translate(self.pos[0], self.pos[1], 0.02), tr.scale(self.size, self.size, self.size)])
 
 ############################################################################
+
+def CurvaRio(N):
+    
+    P0 = np.array([[-1.3, -0.4, 0]]).T
+    P1 = np.array([[-1.1, -0.299, 0]]).T
+    P2 = np.array([[-0.341, -0.129, 0]]).T
+    P3 = np.array([[0.121, -0.313, 0]]).T
+    P4 = np.array([[0.55, -0.36, 0]]).T
+    P5 = np.array([[1.12, -0.39, 0]]).T
+    P6 = np.array([[1.44, -0.51, 0]]).T
+    P7 = np.array([[1.93, -0.31, 0]]).T
+    P8 = np.array([[2.33, -0.43, 0]]).T
+    P9 = np.array([[2.46, -0.22, 0]]).T
+    
+    CM1 = cv.CatmullMatrix(P0, P1, P2, P3)
+    CM2 = cv.CatmullMatrix(P1, P2, P3, P4)
+    CM3 = cv.CatmullMatrix(P2, P3, P4, P5)
+    CM4 = cv.CatmullMatrix(P3, P4, P5, P6)
+    CM5 = cv.CatmullMatrix(P4, P5, P6, P7)
+    CM6 = cv.CatmullMatrix(P5, P6, P7, P8)
+    CM7 = cv.CatmullMatrix(P6, P7, P8, P9)
+
+    ts = np.linspace(0.0, 1.0, N//7)
+    offset = N//7
+    
+    curve = np.ndarray(shape=(len(ts) * 7, 3), dtype=float)
+    
+    for i in range(len(ts)):
+        T = cv.generateT(ts[i])
+        curve[i, 0:3] = np.matmul(CM1, T).T
+        curve[i + offset, 0:3] = np.matmul(CM2, T).T
+        curve[i + 2*offset, 0:3] = np.matmul(CM3, T).T
+        curve[i + 3*offset, 0:3] = np.matmul(CM4, T).T
+        curve[i + 4*offset, 0:3] = np.matmul(CM5, T).T
+        curve[i + 5*offset, 0:3] = np.matmul(CM6, T).T
+        curve[i + 6*offset, 0:3] = np.matmul(CM7, T).T
+          
+    return curve
+
+def createRio(r,g,b):
+    
+    vertices = []
+    indices = []
+
+    curve = CurvaRio(84)
+    delta = 2/(len(curve))
+    counter = 0
+    for i in range(len(curve)-1):
+        y_0 = curve[i]
+        y_1 = curve[i+1]
+        x_0 = -1.0 + delta*i
+        x_1 = -1.0 + delta*(i+1)
+        vertices += [x_0, y_0[1], 0.0, r, g, b]
+        vertices += [x_1, y_1[1], 0.0, r, g, b]
+        vertices += [x_0, y_0[1] - 0.1, 0.001, r, g , b]
+        vertices += [x_1, y_1[1] - 0.1, 0.001, r, g , b]
+        indices += [counter, counter+1, counter+2]
+        indices += [counter+1, counter+2, counter+3]
+        counter += 4
+
+    return bs.Shape(vertices, indices)
+
+def create_rio(pipeline):
+    # Piramide verde
+    rio = createRio(0, 0.1, 1)
+    gpurio = es.GPUShape().initBuffers()
+    pipeline.setupVAO(gpurio)
+    gpurio.fillBuffers(rio.vertices, rio.indices, GL_STATIC_DRAW)
+    
+    return gpurio
+
 
 def createColorPyramid(r, g ,b):
 
@@ -41,6 +150,62 @@ def createColorPyramid(r, g ,b):
          0, 4, 3]
 
     return bs.Shape(vertices, indices)
+
+
+def reflexionX():
+    return np.array([
+        [-1,0,0,0],
+        [0,1,0,0],
+        [0,0,1,0],
+        [0,0,0,1]], dtype = np.float32)
+
+
+def create_proa_barco(r, g, b):
+
+    vertices = [
+    #    positions         colors
+         0.0, 0.5, -0.5,  r, g, b,
+         0.0, -0.5, -0.5,  r, g, b,
+         0.0, -0.5, 0.5,  r, g, b,
+         0.0, 0.5, 0.5,  r, g, b,
+         0.5, 0.0,  0.5,  r, g, b]
+
+    indices = [
+         0, 1, 2,
+         0, 2, 3,
+         0, 1, 4,
+         1, 2, 4,
+         2, 3, 4,
+         0, 3, 4]
+
+    return bs.Shape(vertices, indices)
+
+def create_barco(pipeline):
+
+
+    base = bs.createColorCube(0.75, 0.54, 0.33)
+    gpubase = es.GPUShape().initBuffers()
+    pipeline.setupVAO(gpubase)
+    gpubase.fillBuffers(base.vertices, base.indices, GL_STATIC_DRAW)
+
+    baseNodo = sg.SceneGraphNode("base")
+    baseNodo.transform = tr.matmul([tr.translate(0, 0, 0.01), tr.scale(0.7, 0.5, 0.3)])
+    baseNodo.childs = [gpubase]
+
+    BarcoNodo = sg.SceneGraphNode("barco")
+    BarcoNodo.transform = tr.matmul([
+        tr.translate(0, 0, 0), 
+        tr.scale(0.7, 0.7, 0.3)
+        ])
+    BarcoNodo.childs = [baseNodo]
+
+    return BarcoNodo
+
+
+
+
+
+
 
 def create_tree(pipeline):
     # Piramide verde
@@ -94,7 +259,8 @@ def create_house(pipeline):
 
     # Techo
     techo = sg.SceneGraphNode("techo")
-    techo.transform = tr.matmul([tr.translate(0, 0, 0.1), tr.scale(0.2, 0.4, 0.2)])
+    techo.transform = tr.matmul([
+        tr.translate(0, 0, 0.1), tr.scale(0.2, 0.4, 0.2)])
     techo.childs += [gpuBrownPyramid]
 
     # Base
@@ -150,7 +316,7 @@ def create_decorations(pipeline):
     tree2.transform = tr.translate(-0.5, 0, 0)
 
     tree3 = create_tree(pipeline)
-    tree3.transform = tr.translate(0, -0.5, 0)
+    tree3.transform = tr.translate(0.5, 0.5, 0)
 
     tree4 = create_tree(pipeline)
     tree4.transform = tr.translate(-0.2, 0.5, 0)
@@ -167,6 +333,21 @@ def create_decorations(pipeline):
 
     return decorations
 
+def dibujo_de_rio(pipeline):
+    gpuRio = create_rio(pipeline)
+
+    rioNode = sg.SceneGraphNode("rio")
+    rioNode.transform = tr.identity()
+    rioNode.childs = [gpuRio]
+
+    EscenaRioNode = sg.SceneGraphNode("EscenaRio")
+    EscenaRioNode.transform = tr.identity()
+    EscenaRioNode.childs = [rioNode]
+
+    return EscenaRioNode    
+
+
+
 
 ############################################################################
 
@@ -179,6 +360,7 @@ class Controller:
         self.eye = [0, 0, 0.1]
         self.at = [0, 1, 0.1]
         self.up = [0, 0, 1]
+        self.is_h_pressed = False
 ###########################################################
 
 
@@ -194,6 +376,12 @@ def on_key(window, key, scancode, action, mods):
 
     if key == glfw.KEY_SPACE:
         controller.fillPolygon = not controller.fillPolygon
+
+    if key == glfw.KEY_H:
+        if action ==glfw.PRESS:
+            controller.is_h_pressed = True
+        elif action == glfw.RELEASE:
+            controller.is_h_pressed = False
 
     elif key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
@@ -250,6 +438,18 @@ if __name__ == "__main__":
     decorations = create_decorations(colorShaderProgram)
     skybox = create_skybox(textureShaderProgram)
     floor = create_floor(textureShaderProgram)
+    escena_rio = dibujo_de_rio(colorShaderProgram)
+    barco_mov = create_barco(colorShaderProgram)
+
+    coor_curva = CurvaRio(686)
+    
+    mov_boat = sg.findNode(barco_mov, "barco")
+    
+    movimiento_barco = Movimientodelbarco(0.1)
+    movimiento_barco.set_curva(coor_curva)
+    movimiento_barco.set_model(mov_boat)
+    movimiento_barco.set_controller(controller)
+
 
 ###########################################################################################
 
@@ -269,12 +469,13 @@ if __name__ == "__main__":
         # Clearing the screen in both, color and depth
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+        movimiento_barco.update()
+
 ###########################################################################
 
         at_x = controller.eye[0] + np.cos(controller.theta)
         at_y = controller.eye[1] + np.sin(controller.theta)
         controller.at = np.array([at_x, at_y, controller.at[2]])
-
         view = tr.lookAt(controller.eye, controller.at, controller.up)
 
 ###########################################################################
@@ -283,15 +484,27 @@ if __name__ == "__main__":
         glUseProgram(colorShaderProgram.shaderProgram)
         glUniformMatrix4fv(glGetUniformLocation(colorShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(colorShaderProgram.shaderProgram, "view"), 1, GL_TRUE, view)
-        #glUniformMatrix4fv(glGetUniformLocation(colorShaderProgram.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
+        
 
         sg.drawSceneGraphNode(decorations, colorShaderProgram, "model")
+        
+        glUseProgram(colorShaderProgram.shaderProgram)
+        glUniformMatrix4fv(glGetUniformLocation(colorShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(colorShaderProgram.shaderProgram, "view"), 1, GL_TRUE, view)
+        
+        sg.drawSceneGraphNode(escena_rio, colorShaderProgram, "model")
+
+        glUseProgram(colorShaderProgram.shaderProgram)
+        glUniformMatrix4fv(glGetUniformLocation(colorShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(colorShaderProgram.shaderProgram, "view"), 1, GL_TRUE, view)
+        
+        sg.drawSceneGraphNode(movimiento_barco.model, colorShaderProgram, "model")
 
         # Drawing dice (with texture, another shader program)
         glUseProgram(textureShaderProgram.shaderProgram)
         glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "view"), 1, GL_TRUE, view)
-        #glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
+        
 
         sg.drawSceneGraphNode(skybox, textureShaderProgram, "model")
         sg.drawSceneGraphNode(floor, textureShaderProgram, "model")       

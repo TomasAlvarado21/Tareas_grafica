@@ -14,13 +14,10 @@ def generateT(t):
 
 def CatmullMatrix(P0, P1, P2, P3):
 
-    # Generate a matrix concatenating the columns
     G = np.concatenate((P0, P1, P2, P3), axis=1)
+    Mc = np.array([[0, -0.5, 1, -0.5], [1.0, 0, -2.5, 1.5], [0, 0.5, 2, -1.5], [0, 0, -0.5, 0.5]])
 
-    # Bezier base matrix is a constant
-    Mb = np.array([[0, -0.5, 1, -0.5], [1.0, 0, -2.5, 1.5], [0, 0.5, 2, -1.5], [0, 0, -0.5, 0.5]])
-
-    return np.matmul(G, Mb)
+    return np.matmul(G, Mc)
 
     
 def hermiteMatrix(P1, P2, T1, T2):
