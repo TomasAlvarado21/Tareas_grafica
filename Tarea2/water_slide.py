@@ -1,3 +1,4 @@
+from Tarea2.shapes3d import createToboganNode
 import glfw
 from OpenGL.GL import *
 import OpenGL.GL.shaders
@@ -11,6 +12,7 @@ import grafica.easy_shaders as es
 import grafica.scene_graph as sg
 from grafica.assets_path import getAssetPath
 import grafica.ex_curves as cv
+import grafica.lighting_shaders as ls
 
 
 ############################################################################
@@ -54,7 +56,8 @@ def CurvaTobogan(N):
     return curve
 
 
-def tobogan(N):
+def tobogan(N,r,g,b):
+    curva = CurvaTobogan(N)
     vertices = []
     indices = []
     dTheta = 2 * np.pi /N
@@ -63,28 +66,30 @@ def tobogan(N):
     rho = 0.2
     c = 0
 
-    for i in range(N):
+    for i in curva:
+        punto1 = i
+        punto2 = i+1
         theta = i * dTheta
         theta1 = (i + 1) * dTheta
-        for j in range(N):
-            phi = j*dPhi
-            phi1 = (j+1)*dPhi
-            v0 = [(R+rho*np.cos(phi))*np.cos(theta), (R+rho*np.cos(phi))*np.sin(theta), rho*np.sin(phi)]
-            v1 = [(R+rho*np.cos(phi1))*np.cos(theta), (R+rho*np.cos(phi1))*np.sin(theta), rho*np.sin(phi1)]
-            v2 = [(R+rho*np.cos(phi))*np.cos(theta1), (R+rho*np.cos(phi))*np.sin(theta1), rho*np.sin(phi)]
-            v3 = [(R+rho*np.cos(phi1))*np.cos(theta1), (R+rho*np.cos(phi1))*np.sin(theta1), rho*np.sin(phi1)]
-            n0 = [np.cos(theta)*np.cos(phi), np.sin(theta)*np.cos(phi), np.sin(theta)]
-            n1 = [np.cos(theta)*np.cos(phi1), np.sin(theta)*np.cos(phi1), np.sin(theta)]
-            n2 = [np.cos(theta1)*np.cos(phi), np.sin(theta1)*np.cos(phi), np.sin(theta1)]
-            n3 = [np.cos(theta1)*np.cos(phi1), np.sin(theta1)*np.cos(phi1), np.sin(theta1)]
 
-            vertices += [v0[0], v0[1], v0[2], r, g, b, n0[0], n0[1], n0[2]]
-            vertices += [v1[0], v1[1], v1[2], r, g, b, n1[0], n1[1], n1[2]]
-            vertices += [v2[0], v2[1], v2[2], r, g, b, n2[0], n2[1], n2[2]]
-            vertices += [v3[0], v3[1], v3[2], r, g, b, n3[0], n3[1], n3[2]]
-            indices += [ c + 0, c + 1, c +2 ]
-            indices += [ c + 1, c + 2, c + 3 ]
-            c += 4
+    
+        
+        v0 = [i*np.cos(theta), i*np.sin(theta), rho]
+        v1 = [(i*np.cos(theta))*np.cos(theta), (i*np.cos(theta))*np.sin(theta),  rho]
+        v2 = [(i*np.cos(theta))*np.cos(theta1), (i*np.cos(theta))*np.sin(theta1), rho]
+        v3 = [(i*np.cos(theta))*np.cos(theta1), (i*np.cos(theta))*np.sin(theta1), rho]
+        n0 = [np.cos(theta)*np.cos(theta), np.sin(theta)*np.cos(theta), 0.5]
+        n1 = [np.cos(theta)*np.cos(theta), np.sin(theta)*np.cos(theta), 0.5]
+        n2 = [np.cos(theta1)*np.cos(theta), np.sin(theta1)*np.cos(theta), 0.5]
+        n3 = [np.cos(theta1)*np.cos(theta), np.sin(theta1)*np.cos(theta), 0.5]
+
+        vertices += [v0[0], v0[1], v0[2], r, g, b, n0[0], n0[1], n0[2]]
+        vertices += [v1[0], v1[1], v1[2], r, g, b, n1[0], n1[1], n1[2]]
+        vertices += [v2[0], v2[1], v2[2], r, g, b, n2[0], n2[1], n2[2]]
+        vertices += [v3[0], v3[1], v3[2], r, g, b, n3[0], n3[1], n3[2]]
+        indices += [ c + 0, c + 1, c +2 ]
+        indices += [ c + 1, c + 2, c + 3 ]
+        c += 4
 
     return bs.Shape(vertices, indices)
 
@@ -119,8 +124,8 @@ def create_floor(pipeline):
 
 
 
-def dibujo_de_rio(pipeline):
-    gpuRio = create_rio(pipeline)
+def dibujoTobogan(pipeline):
+    gpuRio = tobogan(pipeline)
 
     rioNode = sg.SceneGraphNode("rio")
     rioNode.transform = tr.identity()
@@ -220,7 +225,8 @@ if __name__ == "__main__":
 
 ###########################################################################################
     # Creating shapes on GPU memory
-
+    phongPipeline = ls.SimplePhongShaderProgram()
+    Tobogan = createToboganNode(0.5,0.5,0.5,phongPipeline)
     
     skybox = create_skybox(textureShaderProgram)
     floor = create_floor(textureShaderProgram)
