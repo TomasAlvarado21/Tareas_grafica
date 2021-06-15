@@ -15,7 +15,7 @@ import grafica.ex_curves as cv
 
 ############################################################################
 
-def CurvaRio(N):
+def CurvaTobogan(N):
     
     P0 = np.array([[-1.3, -0.4, 0]]).T
     P1 = np.array([[-1.1, -0.299, 0]]).T
@@ -52,6 +52,8 @@ def CurvaRio(N):
         curve[i + 6*offset, 0:3] = np.matmul(CM7, T).T
           
     return curve
+
+
 def tobogan(N):
     vertices = []
     indices = []
@@ -219,13 +221,13 @@ if __name__ == "__main__":
 ###########################################################################################
     # Creating shapes on GPU memory
 
-    decorations = create_decorations(colorShaderProgram)
+    
     skybox = create_skybox(textureShaderProgram)
     floor = create_floor(textureShaderProgram)
-    escena_rio = dibujo_de_rio(colorShaderProgram)
+    escena_tobogan = dibujo_de_tobogan(colorShaderProgram)
     barco_mov = create_barco(colorShaderProgram)
 
-    coor_curva = CurvaRio(686)
+    coor_curva = CurvaTobogan(686)
     
     mov_boat = sg.findNode(barco_mov, "barco")
     
