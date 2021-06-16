@@ -317,6 +317,84 @@ def createTexToroide(N):
 
     return bs.Shape(vertices, indices)
 
+
+
+def CurvaTobogan(N):
+    
+    P0 = np.array([[-1.3, -0.4, 0]]).T
+    P1 = np.array([[-1.1, -0.299, 0]]).T
+    P2 = np.array([[-0.341, -0.129, 0]]).T
+    P3 = np.array([[0.121, -0.313, 0]]).T
+    P4 = np.array([[0.55, -0.36, 0]]).T
+    P5 = np.array([[1.12, -0.39, 0]]).T
+    P6 = np.array([[1.44, -0.51, 0]]).T
+    P7 = np.array([[1.93, -0.31, 0]]).T
+    P8 = np.array([[2.33, -0.43, 0]]).T
+    P9 = np.array([[2.46, -0.22, 0]]).T
+    
+    CM1 = cv.CatmullMatrix(P0, P1, P2, P3)
+    CM2 = cv.CatmullMatrix(P1, P2, P3, P4)
+    CM3 = cv.CatmullMatrix(P2, P3, P4, P5)
+    CM4 = cv.CatmullMatrix(P3, P4, P5, P6)
+    CM5 = cv.CatmullMatrix(P4, P5, P6, P7)
+    CM6 = cv.CatmullMatrix(P5, P6, P7, P8)
+    CM7 = cv.CatmullMatrix(P6, P7, P8, P9)
+
+    ts = np.linspace(0.0, 1.0, N//7)
+    offset = N//7
+    
+    curve = np.ndarray(shape=(len(ts) * 7, 3), dtype=float)
+    
+    for i in range(len(ts)):
+        T = cv.generateT(ts[i])
+        curve[i, 0:3] = np.matmul(CM1, T).T
+        curve[i + offset, 0:3] = np.matmul(CM2, T).T
+        curve[i + 2*offset, 0:3] = np.matmul(CM3, T).T
+        curve[i + 3*offset, 0:3] = np.matmul(CM4, T).T
+        curve[i + 4*offset, 0:3] = np.matmul(CM5, T).T
+        curve[i + 5*offset, 0:3] = np.matmul(CM6, T).T
+        curve[i + 6*offset, 0:3] = np.matmul(CM7, T).T
+          
+    return curve
+
+
+def tobogan(N,r,g,b):
+    curva = CurvaTobogan(N)
+    vertices = []
+    indices = []
+    dTheta = 2 * np.pi /N
+    dPhi = 2 * np.pi /N
+    R = 0.5
+    rho = 0.2
+    c = 0
+
+    for i in curva:
+        punto1 = i
+        punto2 = i+1
+        theta = i * dTheta
+        theta1 = (i + 1) * dTheta
+
+    
+        
+        v0 = [i*np.cos(theta), i*np.sin(theta), rho]
+        v1 = [(i*np.cos(theta))*np.cos(theta), (i*np.cos(theta))*np.sin(theta),  rho]
+        v2 = [(i*np.cos(theta))*np.cos(theta1), (i*np.cos(theta))*np.sin(theta1), rho]
+        v3 = [(i*np.cos(theta))*np.cos(theta1), (i*np.cos(theta))*np.sin(theta1), rho]
+        n0 = [np.cos(theta)*np.cos(theta), np.sin(theta)*np.cos(theta), 0.5]
+        n1 = [np.cos(theta)*np.cos(theta), np.sin(theta)*np.cos(theta), 0.5]
+        n2 = [np.cos(theta1)*np.cos(theta), np.sin(theta1)*np.cos(theta), 0.5]
+        n3 = [np.cos(theta1)*np.cos(theta), np.sin(theta1)*np.cos(theta), 0.5]
+
+        vertices += [v0[0], v0[1], v0[2], r, g, b, n0[0], n0[1], n0[2]]
+        vertices += [v1[0], v1[1], v1[2], r, g, b, n1[0], n1[1], n1[2]]
+        vertices += [v2[0], v2[1], v2[2], r, g, b, n2[0], n2[1], n2[2]]
+        vertices += [v3[0], v3[1], v3[2], r, g, b, n3[0], n3[1], n3[2]]
+        indices += [ c + 0, c + 1, c +2 ]
+        indices += [ c + 1, c + 2, c + 3 ]
+        c += 4
+
+    return bs.Shape(vertices, indices)
+
 def createToboganNode(r, g, b, pipeline):
     Toroide = createGPUShape(pipeline, Tobogan(20, r,g,b))
 
