@@ -1,4 +1,4 @@
-from Tarea2.shapes3d import createToboganNode
+from shapes3d import createToboganNode
 import glfw
 from OpenGL.GL import *
 import OpenGL.GL.shaders
@@ -19,16 +19,16 @@ import grafica.lighting_shaders as ls
 
 def CurvaTobogan(N):
     
-    P0 = np.array([[-1.3, -0.4, 0]]).T
-    P1 = np.array([[-1.1, -0.299, 0]]).T
-    P2 = np.array([[-0.341, -0.129, 0]]).T
-    P3 = np.array([[0.121, -0.313, 0]]).T
-    P4 = np.array([[0.55, -0.36, 0]]).T
-    P5 = np.array([[1.12, -0.39, 0]]).T
-    P6 = np.array([[1.44, -0.51, 0]]).T
-    P7 = np.array([[1.93, -0.31, 0]]).T
-    P8 = np.array([[2.33, -0.43, 0]]).T
-    P9 = np.array([[2.46, -0.22, 0]]).T
+    P0 = np.array([[-1.3, -0.4, 1]]).T
+    P1 = np.array([[-1.1, -0.299, 0.9]]).T
+    P2 = np.array([[-0.341, -0.129, 0.83]]).T
+    P3 = np.array([[0.121, -0.313, 0.6]]).T
+    P4 = np.array([[0.55, -0.36, 0.7]]).T
+    P5 = np.array([[1.12, -0.39, 0.77]]).T
+    P6 = np.array([[1.44, -0.51, 0.5]]).T
+    P7 = np.array([[1.93, -0.31, 0.44]]).T
+    P8 = np.array([[2.33, -0.43, 0.3]]).T
+    P9 = np.array([[2.46, -0.22, 0.2]]).T
     
     CM1 = cv.CatmullMatrix(P0, P1, P2, P3)
     CM2 = cv.CatmullMatrix(P1, P2, P3, P4)
@@ -66,32 +66,6 @@ def tobogan(N,r,g,b):
     rho = 0.2
     c = 0
 
-    for i in curva:
-        punto1 = i
-        punto2 = i+1
-        theta = i * dTheta
-        theta1 = (i + 1) * dTheta
-
-    
-        
-        v0 = [i*np.cos(theta), i*np.sin(theta), rho]
-        v1 = [(i*np.cos(theta))*np.cos(theta), (i*np.cos(theta))*np.sin(theta),  rho]
-        v2 = [(i*np.cos(theta))*np.cos(theta1), (i*np.cos(theta))*np.sin(theta1), rho]
-        v3 = [(i*np.cos(theta))*np.cos(theta1), (i*np.cos(theta))*np.sin(theta1), rho]
-        n0 = [np.cos(theta)*np.cos(theta), np.sin(theta)*np.cos(theta), 0.5]
-        n1 = [np.cos(theta)*np.cos(theta), np.sin(theta)*np.cos(theta), 0.5]
-        n2 = [np.cos(theta1)*np.cos(theta), np.sin(theta1)*np.cos(theta), 0.5]
-        n3 = [np.cos(theta1)*np.cos(theta), np.sin(theta1)*np.cos(theta), 0.5]
-
-        vertices += [v0[0], v0[1], v0[2], r, g, b, n0[0], n0[1], n0[2]]
-        vertices += [v1[0], v1[1], v1[2], r, g, b, n1[0], n1[1], n1[2]]
-        vertices += [v2[0], v2[1], v2[2], r, g, b, n2[0], n2[1], n2[2]]
-        vertices += [v3[0], v3[1], v3[2], r, g, b, n3[0], n3[1], n3[2]]
-        indices += [ c + 0, c + 1, c +2 ]
-        indices += [ c + 1, c + 2, c + 3 ]
-        c += 4
-
-    return bs.Shape(vertices, indices)
 
 
 def create_skybox(pipeline):
