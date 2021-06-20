@@ -14,7 +14,7 @@ from grafica.assets_path import getAssetPath
 import grafica.ex_curves as cv
 import grafica.lighting_shaders as ls
 import openmesh as om 
-
+import ej6
 ############################################################################
 
 def CurvaTobogan(N):
@@ -91,6 +91,30 @@ def tobogan(N,n):
             tobogan_mesh.add_face(vertexs[indice3], vertexs[indice4], vertexs[indice1])
 
     return tobogan_mesh
+
+def get_vertex_and_indexes(mesh):
+    faces = mesh.faces()
+
+    vertices = []
+
+    for i in mesh.points():
+        
+        vertices += i.tolist()
+        vertices += [random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)]
+    
+    
+    indices = []
+    
+    for i in faces:
+
+        indexes_faces = mesh.fv(i)
+
+        for j in indexes_faces:
+
+            indices += [j.idx()]
+    return vertices , indices
+
+
 
 
 
@@ -226,12 +250,12 @@ if __name__ == "__main__":
 ###########################################################################################
     # Creating shapes on GPU memory
     phongPipeline = ls.SimplePhongShaderProgram()
-    Tobogan = createToboganNode(0.5,0.5,0.5,phongPipeline)
+    #Tobogan = createToboganNode(0.5,0.5,0.5,phongPipeline)
     
     skybox = create_skybox(textureShaderProgram)
     floor = create_floor(textureShaderProgram)
-    escena_tobogan = dibujo_de_tobogan(colorShaderProgram)
-    barco_mov = create_barco(colorShaderProgram)
+    #escena_tobogan = dibujo_de_tobogan(colorShaderProgram)
+    barco_mov = ej6.create_barco(colorShaderProgram)
 
     coor_curva = CurvaTobogan(686)
     
@@ -242,7 +266,11 @@ if __name__ == "__main__":
     movimiento_barco.set_model(mov_boat)
     movimiento_barco.set_controller(controller)
 
-
+    mesh = tobogan(81, 4)
+    mesh_vertex , mesh_indx = get_vertex_and_indexes(mesh)
+    gpumesh = es.GPUShape().initBuffers()
+    pipeline.setupVao(gpumesh)
+    gpumesh.fillBuffers(mesh_vertex,mesh_indx,GL_STATIC_DRAW)
 ###########################################################################################
 
     # View and projection
@@ -271,8 +299,8 @@ if __name__ == "__main__":
         view = tr.lookAt(controller.eye, controller.at, controller.up)
 
 ###########################################################################
-
-          
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"),1,GL_TRUE,tr.uniformscale(1))
+        pipeline.drawCall(gpumesh)
 
         # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
         glfw.swap_buffers(window)
