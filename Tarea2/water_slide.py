@@ -13,7 +13,7 @@ import grafica.scene_graph as sg
 from grafica.assets_path import getAssetPath
 import grafica.ex_curves as cv
 import grafica.lighting_shaders as ls
-
+import openmesh as om 
 
 ############################################################################
 
@@ -56,15 +56,41 @@ def CurvaTobogan(N):
     return curve
 
 
-def tobogan(N,r,g,b):
+def tobogan(N,n):
     curva = CurvaTobogan(N)
-    vertices = []
-    indices = []
-    dTheta = 2 * np.pi /N
-    dPhi = 2 * np.pi /N
-    R = 0.5
-    rho = 0.2
-    c = 0
+    mesh = om.Trimesh()
+    r = 0.3
+    
+    vertices= []
+    for i in n+1:
+        x = 0
+        z = np.cos(i*np.pi) * r
+        y = np.sin(i*np.pi) * r
+        vertices.append([x,y,z])
+
+    for i in range(len(curva)):
+        vertices[i][0] += curva[i][0]
+        vertices[i][1] += curva[i][1]
+        vertices[i][2] += curva[i][2]
+        mesh.add_vertex([vertices[i][0],vertices[i][1],vertices[i][2]])
+    
+    def ind(i,j,n):
+        x = i*(n+j)
+        return x
+
+    for i in range(len(curva)-1):
+        for j in range(n):
+            indice1 = ind(i,j,n)
+            indice2 = ind(i,j+1,n)
+            indice3 = ind(i+1,j,n)
+            indice4 = ind(i+1,j+1,n)
+
+            vertexs = list(tobogan_mesh.vertices())
+
+            tobogan_mesh.add_face(vertexs[indice1], vertexs[indice2], vertexs[indice3])
+            tobogan_mesh.add_face(vertexs[indice3], vertexs[indice4], vertexs[indice1])
+
+    return tobogan_mesh
 
 
 
