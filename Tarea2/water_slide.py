@@ -58,17 +58,17 @@ def CurvaTobogan(N):
 
 def tobogan(N,n):
     curva = CurvaTobogan(N)
-    mesh = om.Trimesh()
+    mesh = om.TriMesh()
     r = 0.3
     
     vertices= []
-    for i in n+1:
+    for i in range(n+1):
         x = 0
         z = np.cos(i*np.pi) * r
         y = np.sin(i*np.pi) * r
         vertices.append([x,y,z])
 
-    for i in range(len(curva)):
+    for i in range(len(curva)-1):
         vertices[i][0] += curva[i][0]
         vertices[i][1] += curva[i][1]
         vertices[i][2] += curva[i][2]
@@ -85,12 +85,12 @@ def tobogan(N,n):
             indice3 = ind(i+1,j,n)
             indice4 = ind(i+1,j+1,n)
 
-            vertexs = list(tobogan_mesh.vertices())
+            vertexs = list(mesh.vertices())
 
-            tobogan_mesh.add_face(vertexs[indice1], vertexs[indice2], vertexs[indice3])
-            tobogan_mesh.add_face(vertexs[indice3], vertexs[indice4], vertexs[indice1])
+            mesh.add_face(vertexs[indice1], vertexs[indice2], vertexs[indice3])
+            mesh.add_face(vertexs[indice3], vertexs[indice4], vertexs[indice1])
 
-    return tobogan_mesh
+    return mesh
 
 def get_vertex_and_indexes(mesh):
     faces = mesh.faces()
@@ -261,7 +261,7 @@ if __name__ == "__main__":
     
     mov_boat = sg.findNode(barco_mov, "barco")
     
-    movimiento_barco = Movimientodelbarco(0.1)
+    movimiento_barco = ej6.Movimientodelbarco(0.1)
     movimiento_barco.set_curva(coor_curva)
     movimiento_barco.set_model(mov_boat)
     movimiento_barco.set_controller(controller)
