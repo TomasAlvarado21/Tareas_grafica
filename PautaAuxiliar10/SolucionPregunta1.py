@@ -19,7 +19,7 @@ __license__ = "MIT"
 
 # Definicion de variables fisicas
 gravedad = 9.8
-angulo_plano_inclinado = np.pi/9
+angulo_plano_inclinado = 0
 coef_roce = 0.01
 delta_roce = 0.1
 delta_gravedad = 10
@@ -46,6 +46,7 @@ def on_key(window, key, scancode, action, mods):
     global last_z_rk4
     global last_z_euler
     global z0
+    global velocidad_ini
 
     if action != glfw.PRESS:
         return
@@ -77,10 +78,10 @@ def on_key(window, key, scancode, action, mods):
         glfw.set_window_should_close(window, True)
     #con estas teclas se modifica en tiempo real el angulo del plano inclinado en base a pi/9
     elif key == glfw.KEY_A:
-        angulo_plano_inclinado += np.pi/9
+        velocidad_ini += 20
         print('cambio de angulo', angulo_plano_inclinado)
     elif key == glfw.KEY_D:
-        angulo_plano_inclinado -= np.pi/9
+        velocidad_ini -= 2
         print('cambio de angulo', angulo_plano_inclinado)
 
     else:
@@ -88,7 +89,7 @@ def on_key(window, key, scancode, action, mods):
 
 def f_roce(t, z):
     # Nos entrega el vector f con todas las funciones del sistema
-    f = np.array([z[1], gravedad*(coef_roce*np.cos(angulo_plano_inclinado)- np.sin(angulo_plano_inclinado))])
+    f = np.array([z[1], - velocidad_ini])
     return f
 # Creacion de la escena del plano inclinado
 def create_scene(angulo_plano_inclinado):
