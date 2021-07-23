@@ -78,10 +78,10 @@ def on_key(window, key, scancode, action, mods):
         glfw.set_window_should_close(window, True)
     #con estas teclas se modifica en tiempo real el angulo del plano inclinado en base a pi/9
     elif key == glfw.KEY_A:
-        velocidad_ini += 20
+        angulo_plano_inclinado += np.pi /6
         print('cambio de angulo', angulo_plano_inclinado)
     elif key == glfw.KEY_D:
-        velocidad_ini -= 2
+        angulo_plano_inclinado -= np.pi /6
         print('cambio de angulo', angulo_plano_inclinado)
 
     else:
