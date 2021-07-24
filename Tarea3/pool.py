@@ -296,7 +296,7 @@ def create_floor(pipeline):
     gpuFloor = es.GPUShape().initBuffers()
     pipeline.setupVAO(gpuFloor)
     gpuFloor.texture = es.textureSimpleSetup(
-        getAssetPath("grass.jfif"), GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR)
+        getAssetPath("Piso.jpg"), GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR)
     gpuFloor.fillBuffers(shapeFloor.vertices, shapeFloor.indices, GL_STATIC_DRAW)
 
     floor = sg.SceneGraphNode("floor")
@@ -304,6 +304,20 @@ def create_floor(pipeline):
     floor.childs += [gpuFloor]
 
     return floor
+
+def create_mesa(pipeline):
+    shapeMesa = bs.createTextureQuad(8, 8)
+    gpuMesa = es.GPUShape().initBuffers()
+    pipeline.setupVAO(gpuMesa)
+    gpuMesa.texture = es.textureSimpleSetup(
+        getAssetPath("mesaPool.png"), GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR)
+    gpuMesa.fillBuffers(shapeMesa.vertices, shapeMesa.indices, GL_STATIC_DRAW)
+
+    mesa = sg.SceneGraphNode("mesa")
+    mesa.transform = tr.matmul([tr.translate(0, 0, 0.15),tr.scale(1, 1, 1)])
+    mesa.childs += [gpuMesa]
+
+    return mesa
 
 def create_decorations(pipeline):
     tree1 = create_tree(pipeline)
@@ -388,6 +402,9 @@ def on_key(window, key, scancode, action, mods):
     elif key == glfw.KEY_W:
         controller.eye += (controller.at - controller.eye) * 0.05
         controller.at += (controller.at - controller.eye) * 0.05
+    elif key == glfw.KEY_S:
+        controller.eye -= (controller.at - controller.eye) * 0.05
+        controller.at -= (controller.at - controller.eye) * 0.05
     elif key == glfw.KEY_D:
         controller.theta -= np.pi*0.05
     elif key == glfw.KEY_A:
@@ -437,6 +454,7 @@ if __name__ == "__main__":
     floor = create_floor(textureShaderProgram)
     escena_rio = dibujo_de_rio(colorShaderProgram)
     barco_mov = create_barco(colorShaderProgram)
+    mesa = create_mesa(textureShaderProgram)
 
     coor_curva = CurvaRio(686)
     
@@ -504,7 +522,8 @@ if __name__ == "__main__":
         
 
         sg.drawSceneGraphNode(skybox, textureShaderProgram, "model")
-        sg.drawSceneGraphNode(floor, textureShaderProgram, "model")       
+        sg.drawSceneGraphNode(floor, textureShaderProgram, "model")
+        sg.drawSceneGraphNode(mesa, textureShaderProgram, "model")       
 
         # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
         glfw.swap_buffers(window)
