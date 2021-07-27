@@ -59,15 +59,26 @@ def create_mesa(pipeline):
 
     return mesa
 
-def create_patas(pipeline):
-    pata1 = bs.createColorQuad(1,0,0.5)
+def create_pata(pipeline):
+    pata = bs.createColorQuad(1,0,0.5)
     gpuPata = es.GPUShape().initBuffers()
     pipeline.setupVAO(gpuPata)
-    gpuPata.fillBuffers(green_pyramid.vertices, green_pyramid.indices, GL_STATIC_DRAW)
+    gpuPata.fillBuffers(pata.vertices, pata.indices, GL_STATIC_DRAW)
 
-    return Patas
+    return pata
 
+def create_patas(pipeline):
+    pata1 = create_pata(pipeline)
+    pata1.transform = tr.translate(0.5,0,0)
 
+    pata2 = create_pata(pipeline)
+    pata2.transform = tr.translate(0.5,0.5,0)
+
+    patas = sg.SceneGraphNode("patas")
+    patas.transform = tr.identity()
+    patas.childs += [pata1, pata2]
+
+    return patas
 
 ############################################################################
 
@@ -161,7 +172,7 @@ if __name__ == "__main__":
     skybox = create_skybox(textureShaderProgram)
     floor = create_floor(textureShaderProgram)
     mesa = create_mesa(textureShaderProgram)
-    patas_mesa
+    patas_mesa = create_patas(colorShaderProgram)
     
     
 
@@ -198,6 +209,14 @@ if __name__ == "__main__":
         
 
         # Drawing dice (with texture, another shader program)
+        glUseProgram(colorShaderProgram.shaderProgram)
+        glUniformMatrix4fv(glGetUniformLocation(colorShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(colorShaderProgram.shaderProgram, "view"), 1, GL_TRUE, view)
+        
+
+        sg.drawSceneGraphNode(patas_mesa, colorShaderProgram, "model")
+
+
         glUseProgram(textureShaderProgram.shaderProgram)
         glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "view"), 1, GL_TRUE, view)
