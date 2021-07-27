@@ -65,20 +65,9 @@ def create_pata(pipeline):
     pipeline.setupVAO(gpuPata)
     gpuPata.fillBuffers(pata.vertices, pata.indices, GL_STATIC_DRAW)
 
-    return pata
+    return gpuPata
 
-def create_patas(pipeline):
-    pata1 = create_pata(pipeline)
-    pata1.transform = tr.translate(0.5,0,0)
 
-    pata2 = create_pata(pipeline)
-    pata2.transform = tr.translate(0.5,0.5,0)
-
-    patas = sg.SceneGraphNode("patas")
-    patas.transform = tr.identity()
-    patas.childs += [pata1, pata2]
-
-    return patas
 
 ############################################################################
 
@@ -150,6 +139,7 @@ if __name__ == "__main__":
         glfw.terminate()
         glfw.set_window_should_close(window, True)
 
+
     glfw.make_context_current(window)
 
     # Connecting the callback function 'on_key' to handle keyboard events
@@ -158,7 +148,7 @@ if __name__ == "__main__":
     # Creating shader programs for textures and for colors
     textureShaderProgram = es.SimpleTextureModelViewProjectionShaderProgram()
     colorShaderProgram = es.SimpleModelViewProjectionShaderProgram()
-
+    pipeline = colorShaderProgram
     # Setting up the clear screen color
     glClearColor(0.85, 0.85, 0.85, 1.0)
 
@@ -172,8 +162,13 @@ if __name__ == "__main__":
     skybox = create_skybox(textureShaderProgram)
     floor = create_floor(textureShaderProgram)
     mesa = create_mesa(textureShaderProgram)
-    patas_mesa = create_patas(colorShaderProgram)
     
+    pata1 = create_pata(colorShaderProgram)
+    pata1.transform = tr.translate(0.5,0,0.5)
+    pata1.transform = tr.uniformScale(1.1)
+
+    pata2 = create_pata(colorShaderProgram)
+    pata2.transform = tr.translate(0.5,0.5,0.5)
     
 
 
@@ -210,11 +205,14 @@ if __name__ == "__main__":
 
         # Drawing dice (with texture, another shader program)
         glUseProgram(colorShaderProgram.shaderProgram)
-        glUniformMatrix4fv(glGetUniformLocation(colorShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, projection)
-        glUniformMatrix4fv(glGetUniformLocation(colorShaderProgram.shaderProgram, "view"), 1, GL_TRUE, view)
-        
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
+            tr.translate(0.5, 0.5, 0.5),
+            tr.uniformScale(1)]))
+        pipeline.drawCall(pata2)
 
-        sg.drawSceneGraphNode(patas_mesa, colorShaderProgram, "model")
+        glUseProgram(colorShaderProgram.shaderProgram)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, projection)
+        pipeline.drawCall(pata1)
 
 
         glUseProgram(textureShaderProgram.shaderProgram)
