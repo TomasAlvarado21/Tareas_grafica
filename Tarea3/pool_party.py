@@ -23,7 +23,7 @@ PoolDirectory = os.path.join(thisFolderPath, "assets")
 
 CIRCLE_DISCRETIZATION = 40
 RADIUS = 0.05
-VELOCIDAD_GOLPE= 8
+VELOCIDAD_GOLPE= 6
 COEF_RESTITUCION = 0.95
 
 def createGPUShape(pipeline, shape):
@@ -260,11 +260,7 @@ class Player:
         if self.controller.is_enter_pressed and (self.velocity[0] == 0.0 and self.velocity[1] == 0.0):
             potencia = 1 #self.controller.potencia * 0.1 
             self.velocity = (VELOCIDAD_GOLPE*potencia)*direccion_golpe
-            #self.controller.potencia = 0
-            print('disparrau', direccion_golpe)
         
-        if self.controller.is_enter_pressed:
-            print('oki')
         if  np.abs(self.velocity[0])>0.001 or np.abs(self.velocity[1])>0.001:
             # Euler
             direccion = np.array(self.velocity/np.linalg.norm(self.velocity),dtype=np.float64)
