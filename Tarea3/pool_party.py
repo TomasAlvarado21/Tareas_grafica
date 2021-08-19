@@ -21,7 +21,7 @@ thisFilePath = os.path.abspath(__file__)
 thisFolderPath = os.path.dirname(thisFilePath)
 PoolDirectory = os.path.join(thisFolderPath, "assets")
 
-CIRCLE_DISCRETIZATION = 20
+CIRCLE_DISCRETIZATION = 40
 RADIUS = 0.05
 VELOCIDAD_GOLPE= 8
 COEF_RESTITUCION = 0.95
@@ -49,22 +49,18 @@ def create_skybox(pipeline):
         getAssetPath("bar1.jpg"), GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR)
     
     skybox = sg.SceneGraphNode("skybox")
-    skybox.transform = tr.matmul([tr.translate(0, 0, 0.3), tr.uniformScale(2)])
+    skybox.transform = tr.matmul([tr.translate(0, 0, 1), tr.uniformScale(6)])
     skybox.childs += [gpuSky]
 
     return skybox
     
-def f_roce(t, z):
-    # Nos entrega el vector f con todas las funciones del sistema
-    f = np.array([z[1], - velocidad_ini])
-    return f
+
 
 def create_floor(pipeline):
-    shapeFloor = bs.createTextureQuadNormal(8, 8)
+    shapeFloor = bs.createTextureQuadNormal(1, 1)
     gpuFloor = es.GPUShape().initBuffers()
     pipeline.setupVAO(gpuFloor)
-    gpuFloor.texture = es.textureSimpleSetup(
-        getAssetPath("Piso.jpg"), GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR)
+    gpuFloor.texture = es.textureSimpleSetup(getAssetPath('pano_mesa.jpg'), GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR)
     gpuFloor.fillBuffers(shapeFloor.vertices, shapeFloor.indices, GL_STATIC_DRAW)
 
     floor = sg.SceneGraphNode("floor")
@@ -72,112 +68,9 @@ def create_floor(pipeline):
     floor.childs += [gpuFloor]
 
     return floor
-mesaPath = os.path.join(PoolDirectory,'mesaPool.png')
-bordePath = os.path.join(PoolDirectory,'Piso.jpg')
-agujeroPath = os.path.join(PoolDirectory,'borde_universo.png')
 
-def createMesaNode(texborde,texmadera,texhoyo,pipeline,radio_bola):
 
-    mesaNode = sg.SceneGraphNode('bordeMesa')
-
-    gpumarco = createGPUShape(pipeline, bs.createTextureCube(floor))
-    gpumarco.texture = texmadera
-
-    bordetopCNode = sg.SceneGraphNode('bordeTopCompleto')
-    bordetopNode = sg.SceneGraphNode('bordeTop')
-    marco_tNode = sg.SceneGraphNode('marcotop')
-    marco_tNode.childs.append(gpumarco)
-    gpubordetop = createGPUShape(pipeline, bs.createTextureCube(texborde))
-    gpubordetop.texture = texborde
-    bordetopNode.childs.append(gpubordetop)
-    bordetopNode.transform = tr.matmul([tr.translate(0,2+radio_bola,0), tr.scale( (1-2*radio_bola)/0.5, radio_bola/0.5, radio_bola/0.5 )])
-    marco_tNode.transform = tr.matmul([tr.translate(0,2+3*radio_bola,0), tr.scale( (1+4*radio_bola)/0.5, radio_bola/0.5, radio_bola/0.5 )])
-    bordetopCNode.childs = [bordetopNode, marco_tNode]
-
-    bordebottomCNode = sg.SceneGraphNode('bordebottomCompleto')
-    bordebottomNode = sg.SceneGraphNode('bordebottom')
-    marco_bNode = sg.SceneGraphNode('marcotop')
-    marco_bNode.childs.append(gpumarco)
-    gpubordebottom = createGPUShape(pipeline, bs.createTextureCube(texborde))
-    gpubordebottom.texture = texborde 
-    bordebottomNode.childs.append(gpubordebottom)
-    bordebottomNode.transform = tr.matmul([tr.translate(0,-2-radio_bola,0), tr.scale( (1-2*radio_bola)/0.5, radio_bola/0.5, radio_bola/0.5 )])
-    marco_bNode.transform = tr.matmul([tr.translate(0,-2-3*radio_bola,0), tr.scale( (1+4*radio_bola)/0.5, radio_bola/0.5, radio_bola/0.5 )])
-    bordebottomCNode.childs = [bordebottomNode, marco_bNode]
-
-    borderightNode = sg.SceneGraphNode('borderight')
-    borderNode1 = sg.SceneGraphNode('borde_r1')
-    borderNode2 = sg.SceneGraphNode('borde_r2')
-    marco_rNode = sg.SceneGraphNode('marcoRight')
-    marco_rNode.childs.append(gpumarco)
-    gpuborderight = createGPUShape(pipeline, bs.createTextureCube(texborde))
-    gpuborderight.texture = texborde
-    borderNode1.childs.append(gpuborderight)
-    borderNode2.childs.append(gpuborderight)
-    borderNode1.transform = tr.matmul([tr.translate(1+radio_bola,1,0), tr.scale( radio_bola/0.5,(1-2*radio_bola)/0.5, radio_bola/0.5 )])
-    borderNode2.transform = tr.matmul([tr.translate(1+radio_bola,-1,0), tr.scale( radio_bola/0.5,(1-2*radio_bola)/0.5, radio_bola/0.5 )])
-    marco_rNode.transform = tr.matmul([tr.translate(1+3*radio_bola,0,0), tr.scale( radio_bola/0.5,(2+4*radio_bola)/0.5, radio_bola/0.5 )])
-    borderightNode.childs = [borderNode1, borderNode2, marco_rNode]
-    
-    bordeleftNode = sg.SceneGraphNode('bordeleft')
-    bordelNode1 = sg.SceneGraphNode('borde_l1')
-    bordelNode2 = sg.SceneGraphNode('borde_l2')
-    marco_lNode = sg.SceneGraphNode('marcoLeft')
-    marco_lNode.childs.append(gpumarco)
-    gpubordeleft = createGPUShape(pipeline, bs.createTextureCube(texborde))
-    gpubordeleft.texture = texborde
-    bordelNode1.childs.append(gpubordeleft)
-    bordelNode2.childs.append(gpubordeleft)
-    bordelNode1.transform = tr.matmul([tr.translate(-1-radio_bola,1,0), tr.scale( radio_bola/0.5,(1-2*radio_bola)/0.5, radio_bola/0.5 )])
-    bordelNode2.transform = tr.matmul([tr.translate(-1-radio_bola,-1,0), tr.scale( radio_bola/0.5,(1-2*radio_bola)/0.5, radio_bola/0.5 )])
-    marco_lNode.transform = tr.matmul([tr.translate(-1-3*radio_bola,0,0), tr.scale( radio_bola/0.5,(2+4*radio_bola)/0.5, radio_bola/0.5 )])
-    bordeleftNode.childs = [bordelNode1, bordelNode2, marco_lNode]
-
-    HoyosNode = sg.SceneGraphNode('Hoyos')
-    gpuhoyo = createGPUShape(pipeline, bs.createTextureQuad(0.5,1))
-    gpuhoyo.texture = texhoyo
-
-    hoyo1n = sg.SceneGraphNode('Hoyo1')
-    hoyo1n.childs.append(gpuhoyo)
-    hoyo1n.transform = tr.matmul([tr.translate(1+radio_bola,0,0.0001-radio_bola), tr.uniformScale(2*radio_bola/0.5)])
-    hoyo2n = sg.SceneGraphNode('Hoyo2')
-    hoyo2n.childs.append(gpuhoyo)
-    hoyo2n.transform = tr.matmul([tr.translate(-1-radio_bola,0,0.0001-radio_bola), tr.uniformScale(2*radio_bola/0.5)])
-    hoyo3n = sg.SceneGraphNode('Hoyo3')
-    hoyo3n.childs.append(gpuhoyo)
-    hoyo3n.transform = tr.matmul([tr.translate(1,2,0.0001-radio_bola), tr.uniformScale(2*radio_bola/0.5)])
-    hoyo4n = sg.SceneGraphNode('Hoyo4')
-    hoyo4n.childs.append(gpuhoyo)
-    hoyo4n.transform = tr.matmul([tr.translate(-1,2,0.0001-radio_bola), tr.uniformScale(2*radio_bola/0.5)])
-    hoyo5n = sg.SceneGraphNode('Hoyo5')
-    hoyo5n.childs.append(gpuhoyo)
-    hoyo5n.transform = tr.matmul([tr.translate(1,-2,0.0001-radio_bola), tr.uniformScale(2*radio_bola/0.5)])
-    hoyo6n = sg.SceneGraphNode('Hoyo6')
-    hoyo6n.childs.append(gpuhoyo)
-    hoyo6n.transform = tr.matmul([tr.translate(-1,-2,0.0001-radio_bola), tr.uniformScale(2*radio_bola/0.5)])
-    HoyosNode.childs = [hoyo1n,hoyo2n,hoyo3n,hoyo4n,hoyo5n,hoyo6n]
-    lista_hoyos = [[1+radio_bola,0,0.0001-radio_bola],[-1-radio_bola,0,0.0001-radio_bola],[1,2,0.0001-radio_bola],
-                    [-1,2,0.0001-radio_bola],[1,-2,0.0001-radio_bola],[-1,-2,0.0001-radio_bola]]
-    
-    patasNode = sg.SceneGraphNode('PatasMesa')
-    p1node = sg.SceneGraphNode('p1')
-    p2node = sg.SceneGraphNode('p2')
-    p3node = sg.SceneGraphNode('p3')
-    p4node = sg.SceneGraphNode('p4')
-    p1node.childs.append(gpumarco)
-    p2node.childs.append(gpumarco)
-    p3node.childs.append(gpumarco)
-    p4node.childs.append(gpumarco)
-    p1node.transform = tr.matmul([tr.translate(1,2,-1), tr.scale(radio_bola/0.5,radio_bola/0.5,2)])
-    p2node.transform = tr.matmul([tr.translate(-1,2,-1), tr.scale(radio_bola/0.5,radio_bola/0.5,2)])
-    p3node.transform = tr.matmul([tr.translate(1,-2,-1), tr.scale(radio_bola/0.5,radio_bola/0.5,2)])
-    p4node.transform = tr.matmul([tr.translate(-1,-2,-1), tr.scale(radio_bola/0.5,radio_bola/0.5,2)])
-    patasNode.childs = [p1node,p2node,p3node,p4node]
-
-    mesaNode.childs = [bordebottomCNode,bordeleftNode,bordetopCNode,borderightNode,HoyosNode,patasNode] 
-    return mesaNode
-
-def createMesaNodeNormals(texborde,texmadera,texhoyo,pipeline,ball_radius):
+def createMesaNodeNormals(texborde,texmadera,texhoyo,pipeline,radio_bola):
 
     mesaNode = sg.SceneGraphNode('bordeMesa')
 
@@ -192,8 +85,8 @@ def createMesaNodeNormals(texborde,texmadera,texhoyo,pipeline,ball_radius):
     marco_tNode.childs.append(gpumarco)
     
     bordetopNode.childs.append(gpuborde)
-    bordetopNode.transform = tr.matmul([tr.translate(0,2+ball_radius,0), tr.scale( (1-2*ball_radius)/0.5, ball_radius/0.5, ball_radius/0.5 )])
-    marco_tNode.transform = tr.matmul([tr.translate(0,2+3*ball_radius,0), tr.scale( (1+4*ball_radius)/0.5, ball_radius/0.5, ball_radius/0.5 )])
+    bordetopNode.transform = tr.matmul([tr.translate(0,2+radio_bola,0), tr.scale( (1-2*radio_bola)/0.5, radio_bola/0.5, radio_bola/0.5 )])
+    marco_tNode.transform = tr.matmul([tr.translate(0,2+3*radio_bola,0), tr.scale( (1+4*radio_bola)/0.5, radio_bola/0.5, radio_bola/0.5 )])
     bordetopCNode.childs = [bordetopNode, marco_tNode]
 
     bordebottomCNode = sg.SceneGraphNode('bordebottomCompleto')
@@ -202,22 +95,22 @@ def createMesaNodeNormals(texborde,texmadera,texhoyo,pipeline,ball_radius):
     marco_bNode.childs.append(gpumarco)
     
     bordebottomNode.childs.append(gpuborde)
-    bordebottomNode.transform = tr.matmul([tr.translate(0,-2-ball_radius,0), tr.scale( (1-2*ball_radius)/0.5, ball_radius/0.5, ball_radius/0.5 )])
-    marco_bNode.transform = tr.matmul([tr.translate(0,-2-3*ball_radius,0), tr.scale( (1+4*ball_radius)/0.5, ball_radius/0.5, ball_radius/0.5 )])
+    bordebottomNode.transform = tr.matmul([tr.translate(0,-2-radio_bola,0), tr.scale( (1-2*radio_bola)/0.5, radio_bola/0.5, radio_bola/0.5 )])
+    marco_bNode.transform = tr.matmul([tr.translate(0,-2-3*radio_bola,0), tr.scale( (1+4*radio_bola)/0.5, radio_bola/0.5, radio_bola/0.5 )])
     bordebottomCNode.childs = [bordebottomNode, marco_bNode]
 
     borderightNode = sg.SceneGraphNode('borderight')
-    borderNode1 = sg.SceneGraphNode('borde_r1')
-    borderNode2 = sg.SceneGraphNode('borde_r2')
+    NodoBorde = sg.SceneGraphNode('borde_r1')
+    Nodo2Borde = sg.SceneGraphNode('borde_r2')
     marco_rNode = sg.SceneGraphNode('marcoRight')
     marco_rNode.childs.append(gpumarco)
     
-    borderNode1.childs.append(gpuborde)
-    borderNode2.childs.append(gpuborde)
-    borderNode1.transform = tr.matmul([tr.translate(1+ball_radius,1,0), tr.scale( ball_radius/0.5,(1-2*ball_radius)/0.5, ball_radius/0.5 )])
-    borderNode2.transform = tr.matmul([tr.translate(1+ball_radius,-1,0), tr.scale( ball_radius/0.5,(1-2*ball_radius)/0.5, ball_radius/0.5 )])
-    marco_rNode.transform = tr.matmul([tr.translate(1+3*ball_radius,0,0), tr.scale( ball_radius/0.5,(2+4*ball_radius)/0.5, ball_radius/0.5 )])
-    borderightNode.childs = [borderNode1, borderNode2, marco_rNode]
+    NodoBorde.childs.append(gpuborde)
+    Nodo2Borde.childs.append(gpuborde)
+    NodoBorde.transform = tr.matmul([tr.translate(1+radio_bola,1,0), tr.scale( radio_bola/0.5,(1-2*radio_bola)/0.5, radio_bola/0.5 )])
+    Nodo2Borde.transform = tr.matmul([tr.translate(1+radio_bola,-1,0), tr.scale( radio_bola/0.5,(1-2*radio_bola)/0.5, radio_bola/0.5 )])
+    marco_rNode.transform = tr.matmul([tr.translate(1+3*radio_bola,0,0), tr.scale( radio_bola/0.5,(2+4*radio_bola)/0.5, radio_bola/0.5 )])
+    borderightNode.childs = [NodoBorde, Nodo2Borde, marco_rNode]
     
     bordeleftNode = sg.SceneGraphNode('bordeleft')
     bordelNode1 = sg.SceneGraphNode('borde_l1')
@@ -227,9 +120,9 @@ def createMesaNodeNormals(texborde,texmadera,texhoyo,pipeline,ball_radius):
     
     bordelNode1.childs.append(gpuborde)
     bordelNode2.childs.append(gpuborde)
-    bordelNode1.transform = tr.matmul([tr.translate(-1-ball_radius,1,0), tr.scale( ball_radius/0.5,(1-2*ball_radius)/0.5, ball_radius/0.5 )])
-    bordelNode2.transform = tr.matmul([tr.translate(-1-ball_radius,-1,0), tr.scale( ball_radius/0.5,(1-2*ball_radius)/0.5, ball_radius/0.5 )])
-    marco_lNode.transform = tr.matmul([tr.translate(-1-3*ball_radius,0,0), tr.scale( ball_radius/0.5,(2+4*ball_radius)/0.5, ball_radius/0.5 )])
+    bordelNode1.transform = tr.matmul([tr.translate(-1-radio_bola,1,0), tr.scale( radio_bola/0.5,(1-2*radio_bola)/0.5, radio_bola/0.5 )])
+    bordelNode2.transform = tr.matmul([tr.translate(-1-radio_bola,-1,0), tr.scale( radio_bola/0.5,(1-2*radio_bola)/0.5, radio_bola/0.5 )])
+    marco_lNode.transform = tr.matmul([tr.translate(-1-3*radio_bola,0,0), tr.scale( radio_bola/0.5,(2+4*radio_bola)/0.5, radio_bola/0.5 )])
     bordeleftNode.childs = [bordelNode1, bordelNode2, marco_lNode]
 
     HoyosNode = sg.SceneGraphNode('Hoyos')
@@ -239,25 +132,25 @@ def createMesaNodeNormals(texborde,texmadera,texhoyo,pipeline,ball_radius):
     gpuh.texture = texborde
 
 
-    hoyo1n = sg.SceneGraphNode('Hoyo1')
-    hoyo1n.childs.append(gpuh)
-    hoyo1n.transform = tr.matmul([tr.translate(1+ball_radius,0,0.0001-ball_radius), tr.uniformScale(2*ball_radius/0.5)])
-    hoyo2n = sg.SceneGraphNode('Hoyo2')
-    hoyo2n.childs.append(gpuh)
-    hoyo2n.transform = tr.matmul([tr.translate(-1-ball_radius,0,0.0001-ball_radius), tr.uniformScale(2*ball_radius/0.5)])
-    hoyo3n = sg.SceneGraphNode('Hoyo3')
-    hoyo3n.childs.append(gpuh)
-    hoyo3n.transform = tr.matmul([tr.translate(1,2,0.0001-ball_radius), tr.uniformScale(2*ball_radius/0.5)])
-    hoyo4n = sg.SceneGraphNode('Hoyo4')
-    hoyo4n.childs.append(gpuh)
-    hoyo4n.transform = tr.matmul([tr.translate(-1,2,0.0001-ball_radius), tr.uniformScale(2*ball_radius/0.5)])
-    hoyo5n = sg.SceneGraphNode('Hoyo5')
-    hoyo5n.childs.append(gpuh)
-    hoyo5n.transform = tr.matmul([tr.translate(1,-2,0.0001-ball_radius), tr.uniformScale(2*ball_radius/0.5)])
-    hoyo6n = sg.SceneGraphNode('Hoyo6')
-    hoyo6n.childs.append(gpuh)
-    hoyo6n.transform = tr.matmul([tr.translate(-1,-2,0.0001-ball_radius), tr.uniformScale(2*ball_radius/0.5)])
-    HoyosNode.childs = [hoyo1n,hoyo2n,hoyo3n,hoyo4n,hoyo5n,hoyo6n]
+    hoyo1 = sg.SceneGraphNode('Hoyo1')
+    hoyo1.childs.append(gpuh)
+    hoyo1.transform = tr.matmul([tr.translate(1+radio_bola,0,0.0001-radio_bola), tr.uniformScale(2*radio_bola/0.5)])
+    hoyo2 = sg.SceneGraphNode('Hoyo2')
+    hoyo2.childs.append(gpuh)
+    hoyo2.transform = tr.matmul([tr.translate(-1-radio_bola,0,0.0001-radio_bola), tr.uniformScale(2*radio_bola/0.5)])
+    hoyo3 = sg.SceneGraphNode('Hoyo3')
+    hoyo3.childs.append(gpuh)
+    hoyo3.transform = tr.matmul([tr.translate(1,2,0.0001-radio_bola), tr.uniformScale(2*radio_bola/0.5)])
+    hoyo4 = sg.SceneGraphNode('Hoyo4')
+    hoyo4.childs.append(gpuh)
+    hoyo4.transform = tr.matmul([tr.translate(-1,2,0.0001-radio_bola), tr.uniformScale(2*radio_bola/0.5)])
+    hoyo5 = sg.SceneGraphNode('Hoyo5')
+    hoyo5.childs.append(gpuh)
+    hoyo5.transform = tr.matmul([tr.translate(1,-2,0.0001-radio_bola), tr.uniformScale(2*radio_bola/0.5)])
+    hoyo6 = sg.SceneGraphNode('Hoyo6')
+    hoyo6.childs.append(gpuh)
+    hoyo6.transform = tr.matmul([tr.translate(-1,-2,0.0001-radio_bola), tr.uniformScale(2*radio_bola/0.5)])
+    HoyosNode.childs = [hoyo1,hoyo2,hoyo3,hoyo4,hoyo5,hoyo6]
 
     patasNode = sg.SceneGraphNode('PatasMesa')
     p1node = sg.SceneGraphNode('p1')
@@ -268,97 +161,16 @@ def createMesaNodeNormals(texborde,texmadera,texhoyo,pipeline,ball_radius):
     p2node.childs.append(gpumarco)
     p3node.childs.append(gpumarco)
     p4node.childs.append(gpumarco)
-    p1node.transform = tr.matmul([tr.translate(1+3*ball_radius,2+3*ball_radius,-1), tr.scale(ball_radius/0.5,ball_radius/0.5,2)])
-    p2node.transform = tr.matmul([tr.translate(-1-3*ball_radius,2+3*ball_radius,-1), tr.scale(ball_radius/0.5,ball_radius/0.5,2)])
-    p3node.transform = tr.matmul([tr.translate(1+3*ball_radius,-2-3*ball_radius,-1), tr.scale(ball_radius/0.5,ball_radius/0.5,2)])
-    p4node.transform = tr.matmul([tr.translate(-1-3*ball_radius,-2-3*ball_radius,-1), tr.scale(ball_radius/0.5,ball_radius/0.5,2)])
+    p1node.transform = tr.matmul([tr.translate(1+3*radio_bola,2+3*radio_bola,-1), tr.scale(radio_bola/0.5,radio_bola/0.5,2)])
+    p2node.transform = tr.matmul([tr.translate(-1-3*radio_bola,2+3*radio_bola,-1), tr.scale(radio_bola/0.5,radio_bola/0.5,2)])
+    p3node.transform = tr.matmul([tr.translate(1+3*radio_bola,-2-3*radio_bola,-1), tr.scale(radio_bola/0.5,radio_bola/0.5,2)])
+    p4node.transform = tr.matmul([tr.translate(-1-3*radio_bola,-2-3*radio_bola,-1), tr.scale(radio_bola/0.5,radio_bola/0.5,2)])
     patasNode.childs = [p1node,p2node,p3node,p4node]
 
     mesaNode.childs = [bordebottomCNode,bordeleftNode,bordetopCNode,borderightNode,HoyosNode,patasNode] 
     return mesaNode
 
-def createColorSphere(N, r, g, b,radio):
-    # Funcion para crear una esfera 
 
-    vertices = []           # lista para almacenar los verices
-    indices = []            # lista para almacenar los indices
-    dTheta = 2 * np.pi /N   # angulo que hay entre cada iteracion de la coordenada theta
-    dPhi = 2 * np.pi /N     # angulo que hay entre cada iteracion de la coordenada phi
-    rho = radio            # radio de la esfera
-    c = 0                   # contador de vertices, para ayudar a indicar los indices
-
-    # Se recorre la coordenada theta
-    for i in range(N - 1):
-        theta = i * dTheta # angulo theta en esta iteracion
-        theta1 = (i + 1) * dTheta # angulo theta en la iteracion siguiente
-        # Se recorre la coordenada phi
-        for j in range(N):
-            phi = j*dPhi # angulo phi en esta iteracion
-            phi1 = (j+1)*dPhi # angulo phi en la iteracion siguiente
-
-            # Se crean los vertices necesarios son coordenadas esfericas para cada iteracion
-
-            # Vertice para las iteraciones actuales de theta (i) y phi (j) 
-            v0 = [rho*np.sin(theta)*np.cos(phi), rho*np.sin(theta)*np.sin(phi), rho*np.cos(theta)]
-            # Vertice para las iteraciones siguiente de theta (i + 1) y actual de phi (j) 
-            v1 = [rho*np.sin(theta1)*np.cos(phi), rho*np.sin(theta1)*np.sin(phi), rho*np.cos(theta1)]
-            # Vertice para las iteraciones actual de theta (i) y siguiente de phi (j + 1) 
-            v2 = [rho*np.sin(theta1)*np.cos(phi1), rho*np.sin(theta1)*np.sin(phi1), rho*np.cos(theta1)]
-            # Vertice para las iteraciones siguientes de theta (i + 1) y phi (j + 1) 
-            v3 = [rho*np.sin(theta)*np.cos(phi1), rho*np.sin(theta)*np.sin(phi1), rho*np.cos(theta)]
-
-
-            # Creamos los triangulos superiores
-            #        v0
-            #       /  \
-            #      /    \
-            #     /      \
-            #    /        \
-            #   /          \
-            # v1 ---------- v2
-            if i == 0:
-                #           vertices              color    normales
-                vertices += [v0[0], v0[1], v0[2], r, g, b]
-                vertices += [v1[0], v1[1], v1[2], r, g, b]
-                vertices += [v2[0], v2[1], v2[2], r, g, b]
-                indices += [ c + 0, c + 1, c +2 ]
-                c += 3
-
-            # Creamos los triangulos inferiores
-            # v0 ---------- v3
-            #   \          /
-            #    \        /
-            #     \      /
-            #      \    /
-            #       \  /
-            #        v1
-            elif i == (N-2):
-                #           vertices              color    normales
-                vertices += [v0[0], v0[1], v0[2], r, g, b]
-                vertices += [v1[0], v1[1], v1[2], r, g, b]
-                vertices += [v3[0], v3[1], v3[2], r, g, b]
-                indices += [ c + 0, c + 1, c +2 ]
-                c += 3
-            
-            # Creamos los quads intermedios
-            #  v0 -------------- v3
-            #  | \                |
-            #  |    \             |
-            #  |       \          |
-            #  |          \       |
-            #  |             \    |
-            #  |                \ |
-            #  v1 -------------- v2
-            else: 
-                #           vertices              color    normales
-                vertices += [v0[0], v0[1], v0[2], r, g, b]
-                vertices += [v1[0], v1[1], v1[2], r, g, b]
-                vertices += [v2[0], v2[1], v2[2], r, g, b]
-                vertices += [v3[0], v3[1], v3[2], r, g, b]
-                indices += [ c + 0, c + 1, c +2 ]
-                indices += [ c + 2, c + 3, c + 0 ]
-                c += 4
-    return bs.Shape(vertices, indices)
 
 def createColorNormalSphere(N, r, g, b):
 
@@ -434,7 +246,7 @@ class Player:
 
         self.pipeline = pipeline
         self.nodo = sg.SceneGraphNode("sphere")
-        self.gpuShape = createGPUShape(pipeline, createColorNormalSphere(40, 0.9,0.9,0.9))#createGPUShape(pipeline, createColorNormalSphere(40, 0.9,0.9,0.9)) # Shape de la esfera
+        self.gpuShape = createGPUShape(pipeline, createColorNormalSphere(CIRCLE_DISCRETIZATION, 0,0,0))#createGPUShape(pipeline, createColorNormalSphere(40, 0.9,0.9,0.9)) # Shape de la esfera
         self.sombra = createGPUShape(shadow_pip,bs.createColorCircle(20,0.0,0.1,0.1))
         self.nodo.childs.append(self.gpuShape)
         self.position = position
@@ -445,13 +257,13 @@ class Player:
         self.controller = controller
 
     def action(self, acceleration, deltaTime, direccion_golpe):
-        if self.controller.is_h_pressed and (self.velocity[0] == 0.0 and self.velocity[1] == 0.0):
+        if self.controller.is_enter_pressed and (self.velocity[0] == 0.0 and self.velocity[1] == 0.0):
             potencia = 1 #self.controller.potencia * 0.1 
             self.velocity = (VELOCIDAD_GOLPE*potencia)*direccion_golpe
             #self.controller.potencia = 0
             print('disparrau', direccion_golpe)
         
-        if self.controller.is_h_pressed:
+        if self.controller.is_enter_pressed:
             print('oki')
         if  np.abs(self.velocity[0])>0.001 or np.abs(self.velocity[1])>0.001:
             # Euler
@@ -475,15 +287,16 @@ class Player:
             tr.matmul([tr.translate(self.position[0], self.position[1], 0.0001), tr.uniformScale(0.1)])
         )
         pip.drawCall(self.sombra)
+
 class Circle:
     def __init__(self, pipeline, shadow_pip, position, velocity, r, g, b):
-        sphere = createGPUShape(pipeline, createColorNormalSphere(40, r,g,b))
+        sphere = createGPUShape(pipeline, createColorNormalSphere(CIRCLE_DISCRETIZATION, r,g,b))
         # addapting the size of the circle's vertices to have a circle
         # with the desired radius
         scaleFactor = 0.05
-        self.sombra = createGPUShape(shadow_pip,bs.createColorCircle(20,0.0,0.1,0.1))
+        self.sombra = createGPUShape(shadow_pip,bs.createColorCircle(CIRCLE_DISCRETIZATION,0.0,0.1,0.1))
         self.pipeline = pipeline
-        self.gpuShape = createGPUShape(pipeline, createColorNormalSphere(40, r,g,b))#createGPUShape(self.pipeline, shape)
+        self.gpuShape = createGPUShape(pipeline, createColorNormalSphere(CIRCLE_DISCRETIZATION, r,g,b))#createGPUShape(self.pipeline, shape)
         self.position = position
         self.radius = 0.05
         self.velocity = velocity
@@ -610,7 +423,7 @@ class Controller:
 ###########################################################
         self.theta = np.pi
         self.pos_curva = 125 
-        self.is_h_pressed = False
+        self.is_enter_pressed = False
 ###########################################################
 
 
@@ -627,11 +440,11 @@ def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_SPACE:
         controller.fillPolygon = not controller.fillPolygon
 
-    elif key == glfw.KEY_H:
+    elif key == glfw.KEY_ENTER:
         if action ==glfw.PRESS:
-            controller.is_h_pressed = True
+            controller.is_enter_pressed = True
         elif action == glfw.RELEASE:
-            controller.is_h_pressed = False
+            controller.is_enter_pressed = False
 
     elif key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
@@ -690,7 +503,8 @@ if __name__ == "__main__":
     floor = create_floor(texpipeline)
     texture1 = es.textureSimpleSetup(
         getAssetPath("Piso.jpg"), GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR)
-
+    #text_mesa = es.textureSimpleSetup(
+        #getAssetPath("pano_mesa.jpg"), GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR)
     #text_mesa = create_mesa_pool(pipeline)
     #mesa = sg.findNode(text_mesa, "Escena")
     player = Player(pipeline, colorShaderProgram,np.array([0.0,0.0]), controller)
@@ -802,7 +616,7 @@ if __name__ == "__main__":
 ###########################################################################
        
         
-
+        
         # Drawing dice (with texture, another shader program)
         #glUseProgram(textureShaderProgram.shaderProgram)
         #glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, projection)
@@ -819,6 +633,7 @@ if __name__ == "__main__":
         #for circle in circles:
         #    circle.draw()
         #player.draw()
+        
         light_position = np.array([0,0,1.5])
         (r,g,b) = (0.7,0.7,0.7)
         glUseProgram(texpipeline.shaderProgram)
@@ -828,7 +643,7 @@ if __name__ == "__main__":
         glUniform3f(glGetUniformLocation(texpipeline.shaderProgram, "Ls"), r, g, b)
 
         # Entregar a los shaders los coeficientes de reflexion de los objetos ambiente, difuso y especular
-        glUniform3f(glGetUniformLocation(texpipeline.shaderProgram, "Ka"), 0.2, 0.2, 0.2)
+        glUniform3f(glGetUniformLocation(texpipeline.shaderProgram, "Ka"), 0.3, 0.2, 0.2)
         glUniform3f(glGetUniformLocation(texpipeline.shaderProgram, "Kd"), 0.5, 0.5, 0.5)
         glUniform3f(glGetUniformLocation(texpipeline.shaderProgram, "Ks"), 0.5, 0.5, 0.5)
 
@@ -857,16 +672,16 @@ if __name__ == "__main__":
 
         # Entregar a los shaders los coeficientes de reflexion de los objetos ambiente, difuso y especular
         glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ka"), 0.2, 0.2, 0.2)
-        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Kd"), 0.5, 0.5, 0.5)
-        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ks"), 0.5, 0.5, 0.5)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Kd"), 0.1, 0.1, 0.1)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ks"), 0.9, 0.9, 0.9)
 
         glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "lightPosition"), light_position[0], light_position[1], light_position[2])
         glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "viewPosition"), viewPosition[0], viewPosition[1], viewPosition[2])
-        glUniform1ui(glGetUniformLocation(pipeline.shaderProgram, "shininess"), 10)
+        glUniform1ui(glGetUniformLocation(pipeline.shaderProgram, "shininess"), 20)
         
         # Entregar valores a los shaders los coeficientes de atenuacion
-        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "constantAttenuation"), 0.2)
-        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "linearAttenuation"), 0.03)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "constantAttenuation"), 0.05)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "linearAttenuation"), 0.01)
         glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "quadraticAttenuation"), 0.01)
 
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "view"), 1, GL_TRUE, view)
